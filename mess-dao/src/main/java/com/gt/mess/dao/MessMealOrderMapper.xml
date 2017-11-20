@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gt.mess.dao.MessMealOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.gt.mess.entity.MessMealOrder" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="main_id" property="mainId" jdbcType="INTEGER" />
+    <result column="card_id" property="cardId" jdbcType="INTEGER" />
+    <result column="member_id" property="memberId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="INTEGER" />
+    <result column="department" property="department" jdbcType="VARCHAR" />
+    <result column="card_code" property="cardCode" jdbcType="VARCHAR" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="meal_type" property="mealType" jdbcType="INTEGER" />
+    <result column="meal_num" property="mealNum" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="money" property="money" jdbcType="DOUBLE" />
+    <result column="order_time" property="orderTime" jdbcType="TIMESTAMP" />
+    <result column="meal_code" property="mealCode" jdbcType="VARCHAR" />
+    <result column="dep_id" property="depId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, main_id, card_id, member_id, name, sex, department, card_code, time, meal_type, 
+    meal_num, status, money, order_time, meal_code, dep_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getMessMealOrderPageByMainId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{id,jdbcType=INTEGER} order by time desc
+  </select>
+  <select id="getMessMealOrderListforToday" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{id,jdbcType=INTEGER} and status = 1 and to_days(time) = to_days(now()) order by time
+  </select>
+  <select id="getMessMealOrderListforToday2" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{id,jdbcType=INTEGER} and (status = 1 or status = 0) and to_days(time) = to_days(now()) order by time
+  </select>
+  <select id="selectMealOrder" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} 
+    <if test="stime != ''" >
+    <if test="etime != ''" >
+    and time between #{stime} and #{etime} 
+    </if>
+    </if>
+    <if test="mealType != -1" >
+    and meal_type = #{mealType} 
+    </if>
+    <if test="depId != ''" >
+    and dep_id = #{depId} 
+    </if>
+    <if test="status != -1" >
+    and status = #{status} 
+    </if>
+    <if test="cardCode != ''" >
+    and card_code = #{cardCode} 
+    </if>
+    order by time desc
+  </select>
+  <select id="selectMealOrderForMonth" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} 
+    and time between #{stime} and #{etime} and meal_type != 4 
+    and (status = 1 or status = 4 or status = 5) order by time desc
+  </select>
+  <select id="getMessMealOrderNum" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} 
+    and meal_type = #{messType} 
+    and to_days(time) = to_days(now()) order by time
+  </select>
+  <select id="getMessMealOrderByMealCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where meal_code = #{mealCode,jdbcType=VARCHAR}
+  </select>
+  <select id="getMessMealOrderPageByCardIdAndMainId" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} 
+    and card_id = #{cardId} order by time desc
+  </select>
+  <select id="getBookedMessMealOrder" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} and card_id = #{cardId} 
+    and status = 1 order by time
+  </select>
+  <select id="getNotChooseMessMealOrder" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} and card_id = #{cardId} 
+    and status = 0 and meal_type = 4 order by time
+  </select>
+  <select id="getMessMealOrderByMap" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} and card_id = #{cardId} 
+    and status = 1 and meal_type = #{mealType} and to_days(time) = to_days(now())
+  </select>
+  <select id="getPastMessMealOrderListByCardIdAndMainId" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} and card_id = #{cardId} 
+    and (status = 0 or status = 1) and to_days(now()) > to_days(time)
+  </select>
+  <select id="getBookMessMealOrderByToDay" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} and card_id = #{cardId}  
+    and status = 1 and to_days(#{time}) = to_days(time)
+  </select>
+  <select id="getNumsByDepIdAndMealType" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} and dep_id = #{depId}  
+    and status = 1 and to_days(now()) = to_days(time) 
+    and meal_type = #{mealType}
+  </select>
+  <select id="getMessCardListOrder" resultType="java.lang.String" parameterType="java.util.Map" >
+    select 
+    distinct card_code 
+    from t_mess_meal_order
+    where main_id = #{mainId} 
+    <if test="depId != ''" >
+    and dep_id = #{depId} 
+    </if>
+    and status = 1 
+    and time between #{stime} and #{etime} 
+  </select>
+  <select id="selectMealOrderDayCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+    select
+    COUNT(id)
+    from t_mess_meal_order
+    where main_id = #{mainId}
+    and card_id = #{cardId}
+    and status = 0
+    and time = #{day}
+  </select>
+  <!-- <select id="getMealOrderList" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order
+    where main_id = #{mainId} 
+    and meal_type = #{messType} 
+    <if test="status != -1" >
+    and meal_type = #{status} 
+    </if>
+    and to_days(time) = to_days(now()) order by time
+  </select> -->
+  <!-- <select id="getMessMealOrderPageByCardIdAndMainId" resultType="java.util.List" parameterType="java.util.Map" >
+    select 
+    t1.id as mId, t2.id as tId, t3.id as uId, t4.id as fId, 
+    t1.status as mstatus,t1.time as mtime,t1.meal_num mnum,
+    t2.
+    
+    
+    from t_mess_meal_order t1 
+    INNER JOIN t_mess_buy_ticket_order t2 ON t1.card_id = t2.card_id
+    INNER JOIN t_mess_top_up_order t3 ON t1.card_id = t3.card_id
+    INNER JOIN t_mess_add_food_order t4 ON t1.card_id = t4.card_id
+    where t1.main_id = #{mainId} and t1.card_id = #{cardId} order by time
+  </select> -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_mess_meal_order
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="delNotCMealOrder" parameterType="java.util.Map" >
+    delete from t_mess_meal_order
+    where main_id = #{mainId} 
+    and card_id = #{cardId} 
+    and to_days(time) = to_days(#{time}) 
+    and status = 0;
+  </delete>
+  <delete id="cleanFutureOrder" parameterType="java.lang.Integer" >
+    delete from t_mess_meal_order
+    where main_id = #{id,jdbcType=INTEGER} 
+    and to_days(time) > to_days(now()) 
+  </delete>
+  <insert id="insert" parameterType="com.gt.mess.entity.MessMealOrder" >
+    insert into t_mess_meal_order (id, main_id, card_id, 
+      member_id, name, sex, 
+      department, card_code, time, 
+      meal_type, meal_num, status, 
+      money, order_time, meal_code,
+      dep_id)
+    values (#{id,jdbcType=INTEGER}, #{mainId,jdbcType=INTEGER}, #{cardId,jdbcType=INTEGER}, 
+      #{memberId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{sex,jdbcType=INTEGER}, 
+      #{department,jdbcType=VARCHAR}, #{cardCode,jdbcType=VARCHAR}, #{time,jdbcType=TIMESTAMP}, 
+      #{mealType,jdbcType=INTEGER}, #{mealNum,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, 
+      #{money,jdbcType=DOUBLE}, #{orderTime,jdbcType=TIMESTAMP}, #{mealCode,jdbcType=VARCHAR},
+      #{depId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gt.mess.entity.MessMealOrder" >
+  	<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+	   		SELECT @@IDENTITY
+	</selectKey>
+    insert into t_mess_meal_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="mainId != null" >
+        main_id,
+      </if>
+      <if test="cardId != null" >
+        card_id,
+      </if>
+      <if test="memberId != null" >
+        member_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+      <if test="cardCode != null" >
+        card_code,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="mealType != null" >
+        meal_type,
+      </if>
+      <if test="mealNum != null" >
+        meal_num,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="money != null" >
+        money,
+      </if>
+      <if test="orderTime != null" >
+        order_time,
+      </if>
+      <if test="mealCode != null" >
+        meal_code,
+      </if>
+      <if test="depId != null" >
+        dep_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="mainId != null" >
+        #{mainId,jdbcType=INTEGER},
+      </if>
+      <if test="cardId != null" >
+        #{cardId,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null" >
+        #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="cardCode != null" >
+        #{cardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mealType != null" >
+        #{mealType,jdbcType=INTEGER},
+      </if>
+      <if test="mealNum != null" >
+        #{mealNum,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=DOUBLE},
+      </if>
+      <if test="orderTime != null" >
+        #{orderTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mealCode != null" >
+        #{mealCode,jdbcType=VARCHAR},
+      </if>
+      <if test="depId != null" >
+        #{depId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gt.mess.entity.MessMealOrder" >
+    update t_mess_meal_order
+    <set >
+      <if test="mainId != null" >
+        main_id = #{mainId,jdbcType=INTEGER},
+      </if>
+      <if test="cardId != null" >
+        card_id = #{cardId,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null" >
+        member_id = #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="cardCode != null" >
+        card_code = #{cardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mealType != null" >
+        meal_type = #{mealType,jdbcType=INTEGER},
+      </if>
+      <if test="mealNum != null" >
+        meal_num = #{mealNum,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="money != null" >
+        money = #{money,jdbcType=DOUBLE},
+      </if>
+      <if test="orderTime != null" >
+        order_time = #{orderTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mealCode != null" >
+        meal_code = #{mealCode,jdbcType=VARCHAR},
+      </if>
+      <if test="depId != null" >
+        dep_id = #{depId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gt.mess.entity.MessMealOrder" >
+    update t_mess_meal_order
+    set main_id = #{mainId,jdbcType=INTEGER},
+      card_id = #{cardId,jdbcType=INTEGER},
+      member_id = #{memberId,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=INTEGER},
+      department = #{department,jdbcType=VARCHAR},
+      card_code = #{cardCode,jdbcType=VARCHAR},
+      time = #{time,jdbcType=TIMESTAMP},
+      meal_type = #{mealType,jdbcType=INTEGER},
+      meal_num = #{mealNum,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      money = #{money,jdbcType=DOUBLE},
+      order_time = #{orderTime,jdbcType=TIMESTAMP},
+      meal_code = #{mealCode,jdbcType=VARCHAR},
+      dep_id = #{depId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gt.mess.dao.MessOldManCardMapper" >
+  <resultMap id="BaseResultMap" type="com.gt.mess.entity.MessOldManCard" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="main_id" property="mainId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="department" property="department" jdbcType="VARCHAR" />
+    <result column="card_code" property="cardCode" jdbcType="VARCHAR" />
+    <result column="ticket_num" property="ticketNum" jdbcType="INTEGER" />
+    <result column="sex" property="sex" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="dep_id" property="depId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, main_id, name, department, card_code, ticket_num, sex, time, dep_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_old_man_card
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getMessOldManCardPageByMainId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_old_man_card
+    where main_id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectOldManCardManage" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_old_man_card
+    where main_id = #{mainId} 
+    and name like CONCAT(CONCAT('%', #{cardCode}),'%') order by time desc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_mess_old_man_card
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gt.mess.entity.MessOldManCard" >
+    insert into t_mess_old_man_card (id, main_id, name, 
+      department, card_code, ticket_num, 
+      sex, time, dep_id)
+    values (#{id,jdbcType=INTEGER}, #{mainId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
+      #{department,jdbcType=VARCHAR}, #{cardCode,jdbcType=VARCHAR}, #{ticketNum,jdbcType=INTEGER}, 
+      #{sex,jdbcType=INTEGER}, #{time,jdbcType=TIMESTAMP}, #{depId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gt.mess.entity.MessOldManCard" >
+    insert into t_mess_old_man_card
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="mainId != null" >
+        main_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+      <if test="cardCode != null" >
+        card_code,
+      </if>
+      <if test="ticketNum != null" >
+        ticket_num,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="depId != null" >
+        dep_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="mainId != null" >
+        #{mainId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="cardCode != null" >
+        #{cardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketNum != null" >
+        #{ticketNum,jdbcType=INTEGER},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="depId != null" >
+        #{depId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gt.mess.entity.MessOldManCard" >
+    update t_mess_old_man_card
+    <set >
+      <if test="mainId != null" >
+        main_id = #{mainId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="cardCode != null" >
+        card_code = #{cardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketNum != null" >
+        ticket_num = #{ticketNum,jdbcType=INTEGER},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="depId != null" >
+        dep_id = #{depId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gt.mess.entity.MessOldManCard" >
+    update t_mess_old_man_card
+    set main_id = #{mainId,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      department = #{department,jdbcType=VARCHAR},
+      card_code = #{cardCode,jdbcType=VARCHAR},
+      ticket_num = #{ticketNum,jdbcType=INTEGER},
+      sex = #{sex,jdbcType=INTEGER},
+      time = #{time,jdbcType=TIMESTAMP},
+      dep_id = #{depId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

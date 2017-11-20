@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gt.mess.dao.MessOrderManageInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.gt.mess.entity.MessOrderManageInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="om_id" property="omId" jdbcType="INTEGER" />
+    <result column="day" property="day" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, om_id, day, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_order_manage_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getMessOrderManageInfoByOmIdAndDay" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_order_manage_info
+    where om_id = #{omId} and day = #{day}
+  </select>
+  <select id="getMessOrderManageInfoListByOmId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_order_manage_info
+    where om_id = #{id,jdbcType=INTEGER} order by day
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_mess_order_manage_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="delMessOrderManageInfoByOmId" parameterType="java.lang.Integer" >
+    delete from t_mess_order_manage_info
+    where om_id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gt.mess.entity.MessOrderManageInfo" >
+    insert into t_mess_order_manage_info (id, om_id, day, 
+      status)
+    values (#{id,jdbcType=INTEGER}, #{omId,jdbcType=INTEGER}, #{day,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gt.mess.entity.MessOrderManageInfo" >
+    insert into t_mess_order_manage_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="omId != null" >
+        om_id,
+      </if>
+      <if test="day != null" >
+        day,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="omId != null" >
+        #{omId,jdbcType=INTEGER},
+      </if>
+      <if test="day != null" >
+        #{day,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gt.mess.entity.MessOrderManageInfo" >
+    update t_mess_order_manage_info
+    <set >
+      <if test="omId != null" >
+        om_id = #{omId,jdbcType=INTEGER},
+      </if>
+      <if test="day != null" >
+        day = #{day,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gt.mess.entity.MessOrderManageInfo" >
+    update t_mess_order_manage_info
+    set om_id = #{omId,jdbcType=INTEGER},
+      day = #{day,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

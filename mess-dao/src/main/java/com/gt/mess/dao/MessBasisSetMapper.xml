@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gt.mess.dao.MessBasisSetMapper" >
+  <resultMap id="BaseResultMap" type="com.gt.mess.entity.MessBasisSet" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="main_id" property="mainId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="bit_universal" property="bitUniversal" jdbcType="INTEGER" />
+    <result column="bit_buy" property="bitBuy" jdbcType="INTEGER" />
+    <result column="mess_type" property="messType" jdbcType="VARCHAR" />
+    <result column="ticket_day" property="ticketDay" jdbcType="INTEGER" />
+    <result column="breakfast_start" property="breakfastStart" jdbcType="TIME" />
+    <result column="breakfast_end" property="breakfastEnd" jdbcType="TIME" />
+    <result column="breakfast_reserve" property="breakfastReserve" jdbcType="TIME" />
+    <result column="breakfast_price" property="breakfastPrice" jdbcType="DOUBLE" />
+    <result column="lunch_start" property="lunchStart" jdbcType="TIME" />
+    <result column="lunch_end" property="lunchEnd" jdbcType="TIME" />
+    <result column="lunch_reserve" property="lunchReserve" jdbcType="TIME" />
+    <result column="lunch_price" property="lunchPrice" jdbcType="DOUBLE" />
+    <result column="dinner_start" property="dinnerStart" jdbcType="TIME" />
+    <result column="dinner_end" property="dinnerEnd" jdbcType="TIME" />
+    <result column="dinner_reserve" property="dinnerReserve" jdbcType="TIME" />
+    <result column="dinner_price" property="dinnerPrice" jdbcType="DOUBLE" />
+    <result column="night_start" property="nightStart" jdbcType="TIME" />
+    <result column="night_end" property="nightEnd" jdbcType="TIME" />
+    <result column="night_reserve" property="nightReserve" jdbcType="TIME" />
+    <result column="night_price" property="nightPrice" jdbcType="DOUBLE" />
+    <result column="universal_price" property="universalPrice" jdbcType="DOUBLE" />
+    <result column="bit_top_up" property="bitTopUp" jdbcType="INTEGER" />
+    <result column="book_day" property="bookDay" jdbcType="INTEGER" />
+    <result column="past_day" property="pastDay" jdbcType="INTEGER" />
+    <result column="cap_num" property="capNum" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, main_id, name, bit_universal, bit_buy, mess_type, ticket_day, breakfast_start, 
+    breakfast_end, breakfast_reserve, breakfast_price, lunch_start, lunch_end, lunch_reserve, 
+    lunch_price, dinner_start, dinner_end, dinner_reserve, dinner_price, night_start, 
+    night_end, night_reserve, night_price, universal_price, bit_top_up, book_day, past_day,
+    cap_num
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_basis_set
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getMessBasisSetByMainId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_basis_set
+    where main_id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_mess_basis_set
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gt.mess.entity.MessBasisSet" >
+    insert into t_mess_basis_set (id, main_id, name, 
+      bit_universal, bit_buy, mess_type, 
+      ticket_day, breakfast_start, breakfast_end, 
+      breakfast_reserve, breakfast_price, lunch_start, 
+      lunch_end, lunch_reserve, lunch_price, 
+      dinner_start, dinner_end, dinner_reserve, 
+      dinner_price, night_start, night_end, 
+      night_reserve, night_price, universal_price,
+      bit_top_up, book_day, past_day,
+      cap_num
+      )
+    values (#{id,jdbcType=INTEGER}, #{mainId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
+      #{bitUniversal,jdbcType=INTEGER}, #{bitBuy,jdbcType=INTEGER}, #{messType,jdbcType=VARCHAR}, 
+      #{ticketDay,jdbcType=INTEGER}, #{breakfastStart,jdbcType=TIME}, #{breakfastEnd,jdbcType=TIME}, 
+      #{breakfastReserve,jdbcType=TIME}, #{breakfastPrice,jdbcType=DOUBLE}, #{lunchStart,jdbcType=TIME}, 
+      #{lunchEnd,jdbcType=TIME}, #{lunchReserve,jdbcType=TIME}, #{lunchPrice,jdbcType=DOUBLE}, 
+      #{dinnerStart,jdbcType=TIME}, #{dinnerEnd,jdbcType=TIME}, #{dinnerReserve,jdbcType=TIME}, 
+      #{dinnerPrice,jdbcType=DOUBLE}, #{nightStart,jdbcType=TIME}, #{nightEnd,jdbcType=TIME}, 
+      #{nightReserve,jdbcType=TIME}, #{nightPrice,jdbcType=DOUBLE}, #{universalPrice,jdbcType=DOUBLE},
+      #{bitTopUp,jdbcType=INTEGER}, #{bookDay,jdbcType=INTEGER}, #{pastDay,jdbcType=INTEGER},
+      #{capNum,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.gt.mess.entity.MessBasisSet" >
+    insert into t_mess_basis_set
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="mainId != null" >
+        main_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="bitUniversal != null" >
+        bit_universal,
+      </if>
+      <if test="bitBuy != null" >
+        bit_buy,
+      </if>
+      <if test="messType != null" >
+        mess_type,
+      </if>
+      <if test="ticketDay != null" >
+        ticket_day,
+      </if>
+      <if test="breakfastStart != null" >
+        breakfast_start,
+      </if>
+      <if test="breakfastEnd != null" >
+        breakfast_end,
+      </if>
+      <if test="breakfastReserve != null" >
+        breakfast_reserve,
+      </if>
+      <if test="breakfastPrice != null" >
+        breakfast_price,
+      </if>
+      <if test="lunchStart != null" >
+        lunch_start,
+      </if>
+      <if test="lunchEnd != null" >
+        lunch_end,
+      </if>
+      <if test="lunchReserve != null" >
+        lunch_reserve,
+      </if>
+      <if test="lunchPrice != null" >
+        lunch_price,
+      </if>
+      <if test="dinnerStart != null" >
+        dinner_start,
+      </if>
+      <if test="dinnerEnd != null" >
+        dinner_end,
+      </if>
+      <if test="dinnerReserve != null" >
+        dinner_reserve,
+      </if>
+      <if test="dinnerPrice != null" >
+        dinner_price,
+      </if>
+      <if test="nightStart != null" >
+        night_start,
+      </if>
+      <if test="nightEnd != null" >
+        night_end,
+      </if>
+      <if test="nightReserve != null" >
+        night_reserve,
+      </if>
+      <if test="nightPrice != null" >
+        night_price,
+      </if>
+      <if test="universalPrice != null" >
+        universal_price,
+      </if>
+      <if test="bitTopUp != null" >
+        bit_top_up,
+      </if>
+      <if test="bookDay != null" >
+        book_day,
+      </if>
+      <if test="pastDay != null" >
+        past_day,
+      </if>
+      <if test="capNum != null" >
+        cap_num,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="mainId != null" >
+        #{mainId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="bitUniversal != null" >
+        #{bitUniversal,jdbcType=INTEGER},
+      </if>
+      <if test="bitBuy != null" >
+        #{bitBuy,jdbcType=INTEGER},
+      </if>
+      <if test="messType != null" >
+        #{messType,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketDay != null" >
+        #{ticketDay,jdbcType=INTEGER},
+      </if>
+      <if test="breakfastStart != null" >
+        #{breakfastStart,jdbcType=TIME},
+      </if>
+      <if test="breakfastEnd != null" >
+        #{breakfastEnd,jdbcType=TIME},
+      </if>
+      <if test="breakfastReserve != null" >
+        #{breakfastReserve,jdbcType=TIME},
+      </if>
+      <if test="breakfastPrice != null" >
+        #{breakfastPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="lunchStart != null" >
+        #{lunchStart,jdbcType=TIME},
+      </if>
+      <if test="lunchEnd != null" >
+        #{lunchEnd,jdbcType=TIME},
+      </if>
+      <if test="lunchReserve != null" >
+        #{lunchReserve,jdbcType=TIME},
+      </if>
+      <if test="lunchPrice != null" >
+        #{lunchPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="dinnerStart != null" >
+        #{dinnerStart,jdbcType=TIME},
+      </if>
+      <if test="dinnerEnd != null" >
+        #{dinnerEnd,jdbcType=TIME},
+      </if>
+      <if test="dinnerReserve != null" >
+        #{dinnerReserve,jdbcType=TIME},
+      </if>
+      <if test="dinnerPrice != null" >
+        #{dinnerPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="nightStart != null" >
+        #{nightStart,jdbcType=TIME},
+      </if>
+      <if test="nightEnd != null" >
+        #{nightEnd,jdbcType=TIME},
+      </if>
+      <if test="nightReserve != null" >
+        #{nightReserve,jdbcType=TIME},
+      </if>
+      <if test="nightPrice != null" >
+        #{nightPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="universalPrice != null" >
+        #{universalPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="bitTopUp != null" >
+        #{bitTopUp,jdbcType=INTEGER},
+      </if>
+      <if test="bookDay != null" >
+        #{bookDay,jdbcType=INTEGER},
+      </if>
+      <if test="pastDay != null" >
+        #{pastDay,jdbcType=INTEGER},
+      </if>
+      <if test="capNum != null" >
+        #{capNum,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gt.mess.entity.MessBasisSet" >
+    update t_mess_basis_set
+    <set >
+      <if test="mainId != null" >
+        main_id = #{mainId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="bitUniversal != null" >
+        bit_universal = #{bitUniversal,jdbcType=INTEGER},
+      </if>
+      <if test="bitBuy != null" >
+        bit_buy = #{bitBuy,jdbcType=INTEGER},
+      </if>
+      <if test="messType != null" >
+        mess_type = #{messType,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketDay != null" >
+        ticket_day = #{ticketDay,jdbcType=INTEGER},
+      </if>
+      <if test="breakfastStart != null" >
+        breakfast_start = #{breakfastStart,jdbcType=TIME},
+      </if>
+      <if test="breakfastEnd != null" >
+        breakfast_end = #{breakfastEnd,jdbcType=TIME},
+      </if>
+      <if test="breakfastReserve != null" >
+        breakfast_reserve = #{breakfastReserve,jdbcType=TIME},
+      </if>
+      <if test="breakfastPrice != null" >
+        breakfast_price = #{breakfastPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="lunchStart != null" >
+        lunch_start = #{lunchStart,jdbcType=TIME},
+      </if>
+      <if test="lunchEnd != null" >
+        lunch_end = #{lunchEnd,jdbcType=TIME},
+      </if>
+      <if test="lunchReserve != null" >
+        lunch_reserve = #{lunchReserve,jdbcType=TIME},
+      </if>
+      <if test="lunchPrice != null" >
+        lunch_price = #{lunchPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="dinnerStart != null" >
+        dinner_start = #{dinnerStart,jdbcType=TIME},
+      </if>
+      <if test="dinnerEnd != null" >
+        dinner_end = #{dinnerEnd,jdbcType=TIME},
+      </if>
+      <if test="dinnerReserve != null" >
+        dinner_reserve = #{dinnerReserve,jdbcType=TIME},
+      </if>
+      <if test="dinnerPrice != null" >
+        dinner_price = #{dinnerPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="nightStart != null" >
+        night_start = #{nightStart,jdbcType=TIME},
+      </if>
+      <if test="nightEnd != null" >
+        night_end = #{nightEnd,jdbcType=TIME},
+      </if>
+      <if test="nightReserve != null" >
+        night_reserve = #{nightReserve,jdbcType=TIME},
+      </if>
+      <if test="nightPrice != null" >
+        night_price = #{nightPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="universalPrice != null" >
+        universal_price = #{universalPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="bitTopUp != null" >
+        bit_top_up = #{bitTopUp,jdbcType=INTEGER},
+      </if>
+      <if test="bookDay != null" >
+        book_day = #{bookDay,jdbcType=INTEGER},
+      </if>
+      <if test="pastDay != null" >
+        past_day = #{pastDay,jdbcType=INTEGER},
+      </if>
+      <if test="capNum != null" >
+        cap_num = #{capNum,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gt.mess.entity.MessBasisSet" >
+    update t_mess_basis_set
+    set main_id = #{mainId,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      bit_universal = #{bitUniversal,jdbcType=INTEGER},
+      bit_buy = #{bitBuy,jdbcType=INTEGER},
+      mess_type = #{messType,jdbcType=VARCHAR},
+      ticket_day = #{ticketDay,jdbcType=INTEGER},
+      breakfast_start = #{breakfastStart,jdbcType=TIME},
+      breakfast_end = #{breakfastEnd,jdbcType=TIME},
+      breakfast_reserve = #{breakfastReserve,jdbcType=TIME},
+      breakfast_price = #{breakfastPrice,jdbcType=DOUBLE},
+      lunch_start = #{lunchStart,jdbcType=TIME},
+      lunch_end = #{lunchEnd,jdbcType=TIME},
+      lunch_reserve = #{lunchReserve,jdbcType=TIME},
+      lunch_price = #{lunchPrice,jdbcType=DOUBLE},
+      dinner_start = #{dinnerStart,jdbcType=TIME},
+      dinner_end = #{dinnerEnd,jdbcType=TIME},
+      dinner_reserve = #{dinnerReserve,jdbcType=TIME},
+      dinner_price = #{dinnerPrice,jdbcType=DOUBLE},
+      night_start = #{nightStart,jdbcType=TIME},
+      night_end = #{nightEnd,jdbcType=TIME},
+      night_reserve = #{nightReserve,jdbcType=TIME},
+      night_price = #{nightPrice,jdbcType=DOUBLE},
+      universal_price = #{universalPrice,jdbcType=DOUBLE},
+      bit_top_up = #{bitTopUp,jdbcType=INTEGER},
+      book_day = #{bookDay,jdbcType=INTEGER},
+      past_day = #{pastDay,jdbcType=INTEGER},
+      cap_num = #{capNum,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

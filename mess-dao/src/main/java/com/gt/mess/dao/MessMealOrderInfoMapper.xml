@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gt.mess.dao.MessMealOrderInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.gt.mess.entity.MessMealOrderInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="omeal_id" property="omealId" jdbcType="INTEGER" />
+    <result column="ticket_id" property="ticketId" jdbcType="INTEGER" />
+    <result column="ticket_code" property="ticketCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, omeal_id, ticket_id, ticket_code
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getMessMealOrderInfoListByMoId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_meal_order_info
+    where omeal_id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_mess_meal_order_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gt.mess.entity.MessMealOrderInfo" >
+    insert into t_mess_meal_order_info (id, omeal_id, ticket_id, 
+      ticket_code)
+    values (#{id,jdbcType=INTEGER}, #{omealId,jdbcType=INTEGER}, #{ticketId,jdbcType=INTEGER}, 
+      #{ticketCode,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gt.mess.entity.MessMealOrderInfo" >
+    insert into t_mess_meal_order_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="omealId != null" >
+        omeal_id,
+      </if>
+      <if test="ticketId != null" >
+        ticket_id,
+      </if>
+      <if test="ticketCode != null" >
+        ticket_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="omealId != null" >
+        #{omealId,jdbcType=INTEGER},
+      </if>
+      <if test="ticketId != null" >
+        #{ticketId,jdbcType=INTEGER},
+      </if>
+      <if test="ticketCode != null" >
+        #{ticketCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gt.mess.entity.MessMealOrderInfo" >
+    update t_mess_meal_order_info
+    <set >
+      <if test="omealId != null" >
+        omeal_id = #{omealId,jdbcType=INTEGER},
+      </if>
+      <if test="ticketId != null" >
+        ticket_id = #{ticketId,jdbcType=INTEGER},
+      </if>
+      <if test="ticketCode != null" >
+        ticket_code = #{ticketCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gt.mess.entity.MessMealOrderInfo" >
+    update t_mess_meal_order_info
+    set omeal_id = #{omealId,jdbcType=INTEGER},
+      ticket_id = #{ticketId,jdbcType=INTEGER},
+      ticket_code = #{ticketCode,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gt.mess.dao.MessCancelTicketMapper" >
+  <resultMap id="BaseResultMap" type="com.gt.mess.entity.MessCancelTicket" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="main_id" property="mainId" jdbcType="INTEGER" />
+    <result column="card_id" property="cardId" jdbcType="INTEGER" />
+    <result column="card_code" property="cardCode" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="department" property="department" jdbcType="VARCHAR" />
+    <result column="ticket_num" property="ticketNum" jdbcType="INTEGER" />
+    <result column="money" property="money" jdbcType="DOUBLE" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="sex" property="sex" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="member_id" property="memberId" jdbcType="INTEGER" />
+    <result column="dep_id" property="depId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, main_id, card_id, card_code, name, department, ticket_num, money, time, sex, type, member_id,
+    dep_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_cancel_ticket
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getMessCancelTicketPageByMainId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_cancel_ticket
+    where main_id = #{id,jdbcType=INTEGER} order by time
+  </select>
+  <select id="getMessCancelTicketPageByMainIdNew" resultType="map" >
+    SELECT * FROM t_mess_cancel_ticket WHERE main_id = #{mainId} ORDER BY time DESC LIMIT #{nums};
+  </select>
+  <select id="selectCancelRecord" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_cancel_ticket
+    where main_id = #{mainId} 
+    <if test="stime != null" >
+    <if test="etime != null" >
+    and time between #{stime} and #{etime} 
+    </if>
+    <if test="depId != null and depId != -1" >
+    and dep_id = #{depId} 
+    </if>
+    </if>
+    <if test="cardCode != null" >
+    and card_code like #{cardCode}
+    </if>
+    order by time desc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_mess_cancel_ticket
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gt.mess.entity.MessCancelTicket" >
+    insert into t_mess_cancel_ticket (id, main_id, card_id, 
+      card_code, name, department, 
+      ticket_num, money, time,
+      sex, type, member_id,
+      dep_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{mainId,jdbcType=INTEGER}, #{cardId,jdbcType=INTEGER}, 
+      #{cardCode,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{department,jdbcType=VARCHAR}, 
+      #{ticketNum,jdbcType=INTEGER}, #{money,jdbcType=DOUBLE}, #{time,jdbcType=TIMESTAMP},
+      #{sex,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, #{memberId,jdbcType=INTEGER},
+      #{depId,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.gt.mess.entity.MessCancelTicket" >
+  	<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+	   		SELECT @@IDENTITY
+	</selectKey>
+    insert into t_mess_cancel_ticket
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="mainId != null" >
+        main_id,
+      </if>
+      <if test="cardId != null" >
+        card_id,
+      </if>
+      <if test="cardCode != null" >
+        card_code,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+      <if test="ticketNum != null" >
+        ticket_num,
+      </if>
+      <if test="money != null" >
+        money,
+      </if>
+      <if test="time != null" >
+        time,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="memberId != null" >
+        member_id,
+      </if>
+      <if test="depId != null" >
+        dep_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="mainId != null" >
+        #{mainId,jdbcType=INTEGER},
+      </if>
+      <if test="cardId != null" >
+        #{cardId,jdbcType=INTEGER},
+      </if>
+      <if test="cardCode != null" >
+        #{cardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketNum != null" >
+        #{ticketNum,jdbcType=INTEGER},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=DOUBLE},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null" >
+        #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="depId != null" >
+        #{depId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gt.mess.entity.MessCancelTicket" >
+    update t_mess_cancel_ticket
+    <set >
+      <if test="mainId != null" >
+        main_id = #{mainId,jdbcType=INTEGER},
+      </if>
+      <if test="cardId != null" >
+        card_id = #{cardId,jdbcType=INTEGER},
+      </if>
+      <if test="cardCode != null" >
+        card_code = #{cardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketNum != null" >
+        ticket_num = #{ticketNum,jdbcType=INTEGER},
+      </if>
+      <if test="money != null" >
+        money = #{money,jdbcType=DOUBLE},
+      </if>
+      <if test="time != null" >
+        time = #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="memberId != null" >
+        member_id = #{memberId,jdbcType=INTEGER},
+      </if>
+      <if test="depId != null" >
+        dep_id = #{depId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gt.mess.entity.MessCancelTicket" >
+    update t_mess_cancel_ticket
+    set main_id = #{mainId,jdbcType=INTEGER},
+      card_id = #{cardId,jdbcType=INTEGER},
+      card_code = #{cardCode,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      department = #{department,jdbcType=VARCHAR},
+      ticket_num = #{ticketNum,jdbcType=INTEGER},
+      money = #{money,jdbcType=DOUBLE},
+      time = #{time,jdbcType=TIMESTAMP},
+      sex = #{sex,jdbcType=INTEGER},
+      type = #{type,jdbcType=INTEGER},
+      member_id = #{memberId,jdbcType=INTEGER},
+      dep_id = #{depId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  
+  <select id="queryCancelTicketMember" resultType="java.lang.Integer" parameterType="map" >
+    select count(id)
+    from t_mess_cancel_ticket
+    where member_id = #{memberId,jdbcType=INTEGER} and type = 2
+  </select>
+  
+</mapper>

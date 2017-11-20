@@ -1,0 +1,102 @@
+######################## Spring Profile 切换环境 ########################
+## 切换日志环境、数据源等配置
+#  默认的profile为dev，其他环境通过指定启动参数使用不同的profile，比如：
+#   测试环境：java -jar my-spring-boot.jar --spring.profiles.active=test
+#   生产环境：java -jar my -spring-boot.jar --spring.profiles.active=prod
+#  注意 "---" 表示：一组配置
+# 开发环境配置
+spring:
+ redis:
+   host: 113.106.202.51
+#   host: localhost
+   port: 6379
+   password: gt@123456
+   database: 3
+ session:
+   store-type: redis
+ datasource:
+   druid:
+     url: jdbc:mysql://113.106.202.51:3306/gt?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&createDatabaseIfNotExist=true
+     username: root
+     password: gt123456
+     # 下面为连接池的补充设置，应用到上面所有数据源中
+     # 初始化大小，最小，最大
+     initial-size: 5
+     max-active: 20
+     # 配置获取连接等待超时的时间
+     maxWait: 60000
+     # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 五分钟
+     timeBetweenEvictionRunsMillis: 300000
+     # 配置一个连接在池中最小生存的时间，单位是毫秒
+     minEvictableIdleTimeMillis: 30000
+     validationQuery: select 1
+     testWhileIdle: true
+     testOnBorrow: true
+     testOnReturn: true
+     # 是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle。在mysql下建议关闭。
+#     poolPreparedStatements: true
+#     maxPoolPreparedStatementPerConnectionSize: 20
+     # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+     filters: stat,wall,slf4j
+     # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+     # 合并多个DruidDataSource的监控数据
+     #useGlobalDataSourceStat: true
+     stat-view-servlet:
+#      IP白(allow)/黑(deny)名单 (存在共同时，deny优先于allow) : 如果满足deny的话提示:Sorry, you are not permitted to view this page.
+       allow: 127.0.0.1,192.168.3.47
+       login-username: admin
+       login-password: admin
+       reset-enable: false
+       url-pattern: /druid/*
+       # Spring监控配置，说明请参考Druid Github Wiki，配置_Druid和Spring关联监控配置
+       # 如果spring.datasource.druid.aop-patterns要代理的类没有定义interface请设置spring.aop.proxy-target-class=true
+      # Spring监控AOP切入点，如x.y.z.service.*,配置多个英文逗号分隔
+     aop-patterns: com.gt.mess.*.service.*
+
+
+
+############################# 测试环境配置 #############################
+### 设置 Redis session 共享
+redisSession:
+  domainName: .yifriend.com.cn
+  cookiePath: /
+  cookieName: WXMPJSESSIONID
+
+######################## swagger ########################
+swagger:
+  show: true
+
+# 项目使用的资源路径的配置
+mess:
+  ftp:
+   #图片的存放路径
+   imagePath: D:/apache-tomcat-7.0.68/webapps/upload
+   #资源访问路径
+   imageAccess: http://127.0.0.1:8080/upload/
+   #图片资源ftp ip
+   staticSourceFtpIp: 183.47.242.3
+   #图片资源ftp 端口
+   staticSourceFtpPort: 21
+   #图片资源ftp 用户
+   staticSourceFtpUser: gt123456
+   #图片资源ftp 密码
+   staticSourceFtpPwd: gt12345611
+  wxmp_api:
+   adminUrl: http://192.168.3.44:8080/
+   #wxmp项目的域名
+   homeUrl: http://hz1.yifriend.net/
+   #会员
+   memberHomeUrl: http://member.yifriend.net/
+   #会员密钥
+   memberKey: MV8MMFQUMU1HJ6F2GNH40ZFJJ7Q8LNVM
+   #wxmp查询密钥
+   wxmpKey: WXMP2017
+   #redis命名前缀
+   redisName: 'mess:'
+
+# debug: true
+
+# 会员接口参数设置
+
+

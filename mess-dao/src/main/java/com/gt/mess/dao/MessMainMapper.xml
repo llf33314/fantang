@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gt.mess.dao.MessMainMapper" >
+  <resultMap id="BaseResultMap" type="com.gt.mess.entity.MessMain" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="bus_id" property="busId" jdbcType="INTEGER" />
+    <result column="authority_url" property="authorityUrl" jdbcType="VARCHAR" />
+    <result column="authority_sign" property="authoritySign" jdbcType="VARCHAR" />
+    <result column="is_scene_authority" property="isSceneAuthority" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, bus_id, authority_url, authority_sign, is_scene_authority
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_main
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getMessMainByBusId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mess_main
+    where bus_id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_mess_main
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gt.mess.entity.MessMain" >
+    insert into t_mess_main (id, bus_id, authority_url, 
+      authority_sign, is_scene_authority)
+    values (#{id,jdbcType=INTEGER}, #{busId,jdbcType=INTEGER}, #{authorityUrl,jdbcType=VARCHAR}, 
+      #{authoritySign,jdbcType=VARCHAR}, #{isSceneAuthority,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gt.mess.entity.MessMain" >
+  <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+	   		SELECT @@IDENTITY
+	</selectKey>
+    insert into t_mess_main
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="busId != null" >
+        bus_id,
+      </if>
+      <if test="authorityUrl != null" >
+        authority_url,
+      </if>
+      <if test="authoritySign != null" >
+        authority_sign,
+      </if>
+      <if test="isSceneAuthority != null" >
+        is_scene_authority,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="busId != null" >
+        #{busId,jdbcType=INTEGER},
+      </if>
+      <if test="authorityUrl != null" >
+        #{authorityUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="authoritySign != null" >
+        #{authoritySign,jdbcType=VARCHAR},
+      </if>
+      <if test="isSceneAuthority != null" >
+        #{isSceneAuthority,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gt.mess.entity.MessMain" >
+    update t_mess_main
+    <set >
+      <if test="busId != null" >
+        bus_id = #{busId,jdbcType=INTEGER},
+      </if>
+      <if test="authorityUrl != null" >
+        authority_url = #{authorityUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="authoritySign != null" >
+        authority_sign = #{authoritySign,jdbcType=VARCHAR},
+      </if>
+      <if test="isSceneAuthority != null" >
+        is_scene_authority = #{isSceneAuthority,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gt.mess.entity.MessMain" >
+    update t_mess_main
+    set bus_id = #{busId,jdbcType=INTEGER},
+      authority_url = #{authorityUrl,jdbcType=VARCHAR},
+      authority_sign = #{authoritySign,jdbcType=VARCHAR},
+      is_scene_authority = #{isSceneAuthority,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
