@@ -31,10 +31,7 @@ public class BasicTest {
 
     @Test
     public void test() throws Exception {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("style","1011");
-        jsonObject.put("item_key","2");
-        System.out.println(wxmpUtil.getDictApi(jsonObject));
+        System.out.println(JSONObject.toJSONString(wxmpUtil.findByMemberId(222)));
     }
 
     @Before

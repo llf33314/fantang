@@ -87,7 +87,7 @@ mess:
    #wxmp项目的域名
    homeUrl: http://hz1.yifriend.net/
    #会员
-   memberHomeUrl: http://member.yifriend.net/
+   memberHomeUrl: https://member.deeptel.com.cn/
    #会员密钥
    memberKey: MV8MMFQUMU1HJ6F2GNH40ZFJJ7Q8LNVM
    #wxmp查询密钥

@@ -4,12 +4,16 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gt.api.bean.session.BusUser;
+import com.gt.api.bean.session.Member;
+import com.gt.api.bean.session.WxPublicUsers;
 import com.gt.api.util.HttpClienUtils;
 import com.gt.api.util.sign.SignHttpUtils;
 import com.gt.mess.exception.BaseException;
 import com.gt.mess.properties.WxmpApiProperties;
 import com.gt.util.entity.param.pay.WxmemberPayRefund;
 import com.gt.util.entity.param.wx.QrcodeCreateFinal;
+import com.gt.util.entity.param.wx.WxJsSdk;
+import com.gt.util.entity.result.wx.WxJsSdkResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,10 +60,8 @@ public class WxmpUtil {
 		String result = null;
 		if (!isShop) {
 			result = HttpClienUtils.reqPostUTF8(params.toJSONString(), wxmpApiProperties.getHomeUrl() + "8A5DA52E/shopapi/6F6D9AD2/79B4DE7C/queryWxShopByBusId.do", String.class, wxmpApiProperties.getWxmpKey());
-//			result = SignHttpUtils.postByHttp(wxmpApiProperties.getHomeUrl() + "8A5DA52E/shopapi/6F6D9AD2/79B4DE7C/queryWxShopByBusId.do", params, wxmpApiProperties.getWxmpKey());
 		} else {
 			result = HttpClienUtils.reqPostUTF8(params.toJSONString(), wxmpApiProperties.getHomeUrl() + "8A5DA52E/shopapi/6F6D9AD2/79B4DE7C/getShopPhotoByShopId.do", String.class, wxmpApiProperties.getWxmpKey());
-//			result = SignHttpUtils.postByHttp(wxmpApiProperties.getHomeUrl() + "8A5DA52E/shopapi/6F6D9AD2/79B4DE7C/getShopPhotoByShopId.do", params, wxmpApiProperties.getWxmpKey());
 		}
 		JSONObject json = JSON.parseObject(result);
 		if (json.getInteger("code") != 0) {
@@ -152,9 +154,9 @@ public class WxmpUtil {
 	 * @throws Exception
 	 */
 	public JSONObject newqrcodeCreateFinal(Integer busId) throws Exception {
-		JSONObject appidJson = this.getWxPublic(busId);
+		WxPublicUsers wxPublicUsers = this.getWxPublic(busId);
 		QrcodeCreateFinal qrcodeCreateFinal = new QrcodeCreateFinal();
-		qrcodeCreateFinal.setPublicId(Integer.valueOf(appidJson.get("id").toString()));
+		qrcodeCreateFinal.setPublicId(wxPublicUsers.getId());
 		qrcodeCreateFinal.setExternalId(0);
 		qrcodeCreateFinal.setModel(12);//源于字典J001
 		Map<String, Object> jsonMap = new HashMap<String, Object>();
@@ -170,14 +172,14 @@ public class WxmpUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public JSONObject getWxPublic(Integer busId) throws Exception{
+	public WxPublicUsers getWxPublic(Integer busId) throws Exception{
 		JSONObject json = new JSONObject();
 		json.put("reqdata",busId);
 		String result = HttpClienUtils.reqPostUTF8(JSONObject.toJSONString(json),
 				wxmpApiProperties.getHomeUrl()+"8A5DA52E/wxpublicapi/6F6D9AD2/79B4DE7C/selectByUserId.do",
 				String.class,wxmpApiProperties.getWxmpKey());
 		JSONObject jsonObject = JSONObject.parseObject(result);
-		return JSONObject.parseObject(jsonObject.get("data").toString());
+		return JSONObject.toJavaObject(JSONObject.parseObject(jsonObject.get("data").toString()),WxPublicUsers.class);
 	}
 
 	/**
@@ -206,7 +208,12 @@ public class WxmpUtil {
 		String result = SignHttpUtils.WxmppostByHttp(
 				wxmpApiProperties.getHomeUrl()+"/8A5DA52E/childBusUserApi/getMainBusId.do",jsonObject,
 				wxmpApiProperties.getWxmpKey());
-		return  JSONObject.toJavaObject(JSONObject.parseObject(result),BusUser.class);
+		if(JSONObject.parseObject(result).get("code").equals(0)){
+			JSONObject data = JSONObject.parseObject(JSONObject.parseObject(result).get("data").toString());
+			return  JSONObject.toJavaObject(data,BusUser.class);
+		}else {
+			throw new Exception();
+		}
 	}
 
 	/**
@@ -221,7 +228,67 @@ public class WxmpUtil {
 		String result = SignHttpUtils.WxmppostByHttp(
 				wxmpApiProperties.getHomeUrl()+"/8A5DA52E/busUserApi/getBusUserApi.do",jsonObject,
 				wxmpApiProperties.getWxmpKey());
-		return  JSONObject.toJavaObject(JSONObject.parseObject(result),BusUser.class);
+		if(JSONObject.parseObject(result).get("code").equals(0)){
+			JSONObject data = JSONObject.parseObject(JSONObject.parseObject(result).get("data").toString());
+			return  JSONObject.toJavaObject(data,BusUser.class);
+		}else {
+			throw new Exception();
+		}
 	}
+
+	/**
+	 * 检查商家ID是否是主账号ID
+	 * @param busId
+	 * @return
+	 * @throws Exception
+	 */
+	public Integer checkBusId(Integer busId) throws Exception{
+		BusUser busUser = this.getBusUserApi(busId);
+		if(busUser.getPid() != 0){
+			return this.getMainBusId(busId).getId();
+		}
+		return busUser.getId();
+	}
+
+	/**
+	 * 微信jssdk接口
+	 * @param publicId
+	 * @param url
+	 * @return
+	 * @throws Exception
+	 */
+	public WxJsSdkResult wxjssdk(Integer publicId, String url) throws Exception{
+		JSONObject json = new JSONObject();
+		WxJsSdk wxJsSdk = new WxJsSdk();
+		wxJsSdk.setPublicId(publicId);
+		wxJsSdk.setUrl(url);
+		json.put("reqdata",wxJsSdk);
+		String result = HttpClienUtils.reqPostUTF8(JSONObject.toJSONString(json),
+				wxmpApiProperties.getHomeUrl()+"8A5DA52E/wxphone/6F6D9AD2/79B4DE7C/wxjssdk.do",
+				String.class,wxmpApiProperties.getWxmpKey());
+		JSONObject jsonObject = JSONObject.parseObject(result);
+		return JSONObject.toJavaObject(JSONObject.parseObject(jsonObject.get("data").toString()),WxJsSdkResult.class);
+	}
+
+	/**
+	 * 根据粉丝id获取粉丝信息
+	 * @param memberId
+	 * @return
+	 * @throws Exception
+	 */
+	public Member findByMemberId(Integer memberId) throws Exception{
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("memberId",memberId);
+		String result = SignHttpUtils.WxmppostByHttp(
+				wxmpApiProperties.getMemberHomeUrl()+"/memberAPI/member/findByMemberId.do",jsonObject,
+				wxmpApiProperties.getMemberKey());
+		if(JSONObject.parseObject(result).get("code").equals(0)){
+			JSONObject data = JSONObject.parseObject(JSONObject.parseObject(result).get("data").toString());
+			return  JSONObject.toJavaObject(data,Member.class);
+		}else {
+			throw new Exception();
+		}
+	}
+
 
 }

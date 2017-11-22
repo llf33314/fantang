@@ -100,9 +100,6 @@ public class MessReceptionController {
 	private MessOldManCardOrderService messOldManCardOrderService;
 
 	@Autowired
-	private RedisCacheUtil redisCacheUtil;
-
-	@Autowired
 	private WxmpUtil wxmpUtil;
 
 

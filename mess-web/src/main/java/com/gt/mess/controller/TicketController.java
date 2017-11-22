@@ -3,6 +3,7 @@ package com.gt.mess.controller;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
+import com.gt.api.util.SessionUtils;
 import com.gt.mess.base.BaseController;
 import com.gt.mess.dao.MessCardGroupMapper;
 import com.gt.mess.dao.MessDepartmentMapper;
