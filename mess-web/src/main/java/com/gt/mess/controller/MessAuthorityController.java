@@ -1,8 +1,11 @@
 package com.gt.mess.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
+import com.gt.mess.dto.ResponseDTO;
+import com.gt.mess.entity.MessBasisSet;
 import com.gt.mess.entity.MessMain;
 import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessAuthorityMemberService;
@@ -18,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,55 +51,45 @@ public class MessAuthorityController {
 	/**
 	 * 授权人员管理
 	 * @param request
-	 * @param response
 	 * @param page
 	 * @return
 	 */
 	@RequestMapping(value = "/authorityManage")
-	public ModelAndView authorityManage(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO authorityManage(HttpServletRequest request,
 			Page<Map<String,Object>> page) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId= messMain.getId();
 			Page<Map<String,Object>> authoritys =
 					messAuthorityMemberService.getMessAuthorityMemberPageByMainId(page, mainId, 10);
-			mv.addObject("authorityList", authoritys.getRecords());
-			mv.addObject("messMain", messMain);
-			mv.setViewName("merchants/trade/mess/admin/authority/authorityManage");
+			jsonData.put("authorityList", authoritys.getRecords());
+			jsonData.put("messMain", messMain);
+//			mv.setViewName("merchants/trade/mess/admin/authority/authorityManage");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("授权人员管理数据获取失败");
 		}
-		return mv;
 	}
-	
-	
-	
+
 	/**
 	 * 删除授权人员
-	 * @param request
 	 * @param response
 	 * @param params
 	 * @throws IOException
 	 */
 //	@SysLogAnnotation(description = "饭票删除权限信息", op_function = "4")
 	@RequestMapping("/delAuthorityMember")
-	public void delAuthorityMember(HttpServletRequest request,HttpServletResponse response,
+	public ResponseDTO delAuthorityMember(HttpServletResponse response,
 	@RequestParam Map<String, Object> params) throws IOException {
-		Map<String, Object> msg = null;
 		try {
-		    msg = messAuthorityMemberService.delAuthorityMember(params);
-		} catch (BaseException e) {
-			msg = new HashMap<>();
-			msg.put("result", e.getCode());
-			msg.put("message", e.getMessage());
-			logger.error("取消授权人员错误！！");
-			e.printStackTrace();
-		} finally {
-			CommonUtil.write(response, msg);
+			return messAuthorityMemberService.delAuthorityMember(params);
+		} catch (Exception e) {
+			// TODO: handle exception
+			throw new BaseException("取消授权人员失败");
 		}
 	}
 	
@@ -108,23 +102,16 @@ public class MessAuthorityController {
 	 */
 //	@SysLogAnnotation(description = "微饭票重置授权信息并删除、更新授权人员", op_function = "4")
 	@RequestMapping("/delAuthorityMembers")
-	public void delAuthorityMembers(HttpServletRequest request,HttpServletResponse response,
+	public ResponseDTO delAuthorityMembers(HttpServletRequest request,HttpServletResponse response,
 	@RequestParam Map<String, Object> params) throws IOException {
-		Map<String, Object> msg = null;
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			params.put("busId", busUser.getId());
-			String path =CommonUtil.getURL(request);
-			params.put("path", path);//设置二维码访问域
-		    msg = messAuthorityMemberService.delAuthorityMembers(params);
-		} catch (BaseException e) {
-			msg = new HashMap<>();
-			msg.put("result", e.getCode());
-			msg.put("message", e.getMessage());
-			logger.error("微饭票重置授权信息并删除、更新授权人员错误！！");
-			e.printStackTrace();
-		} finally {
-			CommonUtil.write(response, msg);
+			params.put("path", CommonUtil.getURL(request));//设置二维码访问域
+			return messAuthorityMemberService.delAuthorityMembers(params);
+		} catch (Exception e) {
+			// TODO: handle exception
+			throw new BaseException("微饭票重置授权信息并删除、更新授权人员失败");
 		}
 	}
 }

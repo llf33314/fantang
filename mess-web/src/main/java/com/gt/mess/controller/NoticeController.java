@@ -1,11 +1,15 @@
 package com.gt.mess.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
+import com.gt.mess.dto.ResponseDTO;
+import com.gt.mess.entity.MessBasisSet;
 import com.gt.mess.entity.MessMain;
 import com.gt.mess.entity.MessNotice;
+import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.service.MessNoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,14 +46,13 @@ public class NoticeController {
     /**
      * 公告管理
      * @param request
-     * @param response
      * @return
      */
     @RequestMapping(value = "/noticeManage")
-    public ModelAndView noticeManage(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO noticeManage(HttpServletRequest request,
                                      Page<MessNotice> page) {
-        ModelAndView mv = new ModelAndView();
         try {
+            JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
@@ -56,94 +60,59 @@ public class NoticeController {
             Page<MessNotice> messNotices =
                     messNoticeService.getMessNoticePageByMainId(page, mainId, 1);
             if(messNotices != null && messNotices.getTotal() == 1){
-                mv.addObject("type", 1);
+                jsonData.put("type", 1);
             }else{
-                mv.addObject("type", 0);
+                jsonData.put("type", 0);
             }
-            mv.addObject("messNotices", messNotices);
-            mv.addObject("mainId", mainId);
-            mv.setViewName("merchants/trade/mess/admin/basisSet/noticeManage");
+            jsonData.put("messNotices", messNotices);
+            jsonData.put("mainId", mainId);
+//            mv.setViewName("merchants/trade/mess/admin/basisSet/noticeManage");
+            return ResponseDTO.createBySuccess(jsonData);
         } catch (Exception e) {
             // TODO: handle exception
-            e.printStackTrace();
+            throw new BaseException("公告管理数据获取失败");
         }
-        return mv;
     }
 
 
     /**
      * 保存或更新公告
-     *
      * @param request
      * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 保存或更新公告",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "/saveOrUpdateNotice")
-    public void saveOrUpdateNotice(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO saveOrUpdateNotice(HttpServletRequest request, HttpServletResponse response,
                                    @RequestParam Map<String,Object> params) {
-        int data = 0;
         try {
-            data = messNoticeService.saveOrUpdateNotice(params);
+            int data = messNoticeService.saveOrUpdateNotice(params);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("保存或更新公告失败");
         }
     }
 
     /**
      * 删除公告
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 删除公告",op_function="4")//保存2，修改3，删除4
     @RequestMapping(value = "{nId}/delNotice")
-    public void delNotice(HttpServletRequest request, HttpServletResponse response,
-                          @PathVariable("nId") Integer nId) {
-        int data = 0;
+    public ResponseDTO delNotice(@PathVariable("nId") Integer nId) {
         try {
-            data = messNoticeService.delNotice(nId);
+            int data = messNoticeService.delNotice(nId);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("删除公告失败");
         }
     }
 }

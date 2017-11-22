@@ -1,12 +1,16 @@
 package com.gt.mess.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
+import com.gt.mess.dto.ResponseDTO;
 import com.gt.mess.entity.MessBasisSet;
+import com.gt.mess.entity.MessCard;
 import com.gt.mess.entity.MessCardGroup;
 import com.gt.mess.entity.MessMain;
+import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessBasisSetService;
 import com.gt.mess.service.MessCardGroupService;
 import com.gt.mess.service.MessCardService;
@@ -49,14 +53,13 @@ public class CardGroupController {
     /**
      * 饭卡组管理
      * @param request
-     * @param response
      * @return
      */
     @RequestMapping(value = "/cardGroupManage")
-    public ModelAndView cardGroupManage(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO cardGroupManage(HttpServletRequest request,
                                         Page<MessCardGroup> page) {
-        ModelAndView mv = new ModelAndView();
         try {
+            JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
@@ -65,53 +68,34 @@ public class CardGroupController {
                     messBasisSetService.getMessBasisSetByMainId(mainId);
             Page<MessCardGroup> messCardGroups =
                     messCardGroupServcie.getMessCardGroupPageByMainId(page, mainId, 10);
-            mv.addObject("mainId", mainId);
-            mv.addObject("messBasisSet", messBasisSet);
-            mv.addObject("messCardGroups", messCardGroups);
-            mv.setViewName("merchants/trade/mess/admin/basisSet/cardGroupManage");
+            jsonData.put("mainId", mainId);
+            jsonData.put("messBasisSet", messBasisSet);
+            jsonData.put("messCardGroups", messCardGroups);
+//            mv.setViewName("merchants/trade/mess/admin/basisSet/cardGroupManage");
+            return ResponseDTO.createBySuccess(jsonData);
         } catch (Exception e) {
             // TODO: handle exception
-            e.printStackTrace();
+            throw new BaseException("饭卡组管理数据获取失败");
         }
-        return mv;
     }
 
 
     /**
      * 保存或更新饭卡组
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 保存或更新饭卡组",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "/saveOrUpdateCardGroup")
-    public void saveOrUpdateCardGroup(HttpServletRequest request, HttpServletResponse response,
-                                      @RequestParam Map<String,Object> params) {
-        int data = 0;
+    public ResponseDTO saveOrUpdateCardGroup(@RequestParam Map<String,Object> params) {
         try {
-            data = messCardGroupServcie.saveOrUpdateCardGroup(params);
+            int data = messCardGroupServcie.saveOrUpdateCardGroup(params);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("保存或更新饭卡组失败");
         }
     }
 
@@ -124,10 +108,10 @@ public class CardGroupController {
      */
 //	@SysLogAnnotation(description="微食堂 删除饭卡组",op_function="4")//保存2，修改3，删除4
     @RequestMapping(value = "{groupId}/delCardGroup")
-    public void delCardGroup(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO delCardGroup(HttpServletRequest request, HttpServletResponse response,
                              @PathVariable("groupId") Integer groupId) {
-        int data = 0;
         try {
+            int data = 0;
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
@@ -141,30 +125,13 @@ public class CardGroupController {
             }else{
                 data = messCardGroupServcie.delCardGroup(groupId);
             }
-
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else if(data == -1) {
-                map.put("status","error1");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("删除饭卡组失败");
         }
     }
 }

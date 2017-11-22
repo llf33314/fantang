@@ -3,10 +3,8 @@ package com.gt.mess.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
-import com.gt.api.bean.session.BusUser;
 import com.gt.api.bean.session.Member;
 import com.gt.api.bean.session.WxPublicUsers;
-import com.gt.api.util.RequestUtils;
 import com.gt.api.util.SessionUtils;
 import com.gt.mess.dao.*;
 import com.gt.mess.dto.ResponseDTO;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.jws.WebResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

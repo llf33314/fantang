@@ -1,6 +1,7 @@
 package com.gt.mess.service;
 
 
+import com.gt.mess.dto.ResponseDTO;
 import com.gt.mess.entity.MessAuthorityMember;
 import com.gt.mess.exception.BaseException;
 import com.baomidou.mybatisplus.plugins.Page;
@@ -11,9 +12,9 @@ public interface MessAuthorityMemberService {
 
 	Page<Map<String,Object>> getMessAuthorityMemberPageByMainId(Page<Map<String, Object>> page, Integer mainId, int i);
 
-	Map<String, Object> delAuthorityMember(Map<String, Object> params) throws BaseException;
+	ResponseDTO delAuthorityMember(Map<String, Object> params) throws BaseException;
 
-	Map<String, Object> delAuthorityMembers(Map<String, Object> params) throws BaseException;
+	ResponseDTO delAuthorityMembers(Map<String, Object> params) throws BaseException;
 
 	Map<String, Object> saveAuthority(Map<String, Object> params) throws BaseException;
 

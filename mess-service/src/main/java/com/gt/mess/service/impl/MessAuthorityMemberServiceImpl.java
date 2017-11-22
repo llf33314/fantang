@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.mess.dao.MessAuthorityMemberMapper;
 import com.gt.mess.dao.MessCancelTicketMapper;
 import com.gt.mess.dao.MessMainMapper;
+import com.gt.mess.dto.ResponseDTO;
 import com.gt.mess.entity.MessAuthorityMember;
 import com.gt.mess.entity.MessMain;
 import com.gt.mess.exception.BaseException;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -65,9 +67,7 @@ public class MessAuthorityMemberServiceImpl implements MessAuthorityMemberServic
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public Map<String, Object> delAuthorityMember(Map<String, Object> params) throws BaseException {
-		Map<String, Object> msg = new HashMap<String, Object>();
-		boolean result = false;
+	public ResponseDTO delAuthorityMember(Map<String, Object> params) throws BaseException {
 		String message = "取消失败！";
 		try {
 			if(!CommonUtil.isEmpty(params.get("id"))){
@@ -82,79 +82,69 @@ public class MessAuthorityMemberServiceImpl implements MessAuthorityMemberServic
 					//没有核销过  删除
 					messAuthorityMemberMapper.deleteByPrimaryKey(CommonUtil.toInteger(params.get("id")));
 				}
-				result = true;
 				message = "取消成功！";
+				return ResponseDTO.createBySuccessMessage(message);
 			}
+			return ResponseDTO.createByErrorMessage(message);
 		}catch (Exception e) {
-			logger.error("取消授权人员失败，原因：" + e.getMessage());
-			e.printStackTrace();
-			throw new BaseException(message);
-		} finally {
-			msg.put("result", result);
-			msg.put("message", message);
+			// TODO: handle exception
+			throw new BaseException("取消授权人员失败");
 		}
-		return msg;
 	}
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public Map<String, Object> delAuthorityMembers(Map<String, Object> params) throws BaseException {
-		Map<String, Object> msg = new HashMap<String, Object>();
-		boolean result = false;
+	public ResponseDTO delAuthorityMembers(Map<String, Object> params) throws BaseException {
 		String message = "重置失败！";
-		try {
-			params.put("delStatus", 0);
-			List<MessAuthorityMember> list = messAuthorityMemberMapper.getMessAuthorityMember(params);
-			List<MessAuthorityMember> updateList = new ArrayList<MessAuthorityMember>();
-			List<MessAuthorityMember> delList = new ArrayList<MessAuthorityMember>();
-			for (MessAuthorityMember auth : list) {
-				params.put("memberId", auth.getId());
-				int count = messCancelTicketMapper.queryCancelTicketMember(params);
-				if(count>0){
-					updateList.add(auth);
-				}else{
-					delList.add(auth);
-				}
-			}
-			if(updateList.size()>0){
-				int update_count = messAuthorityMemberMapper.updateAuthorityMembers(updateList);
-			}
-			if(delList.size()>0){
-				int del_count = messAuthorityMemberMapper.delAuthorityMembers(delList);
-			}
-			Integer mainId = CommonUtil.toInteger(params.get("mainId"));
-			String path = params.get("path").toString();
-			MessMain main = messMainMapper.selectByPrimaryKey(mainId);
-			String authoritySign = main.getAuthoritySign();
-			String savePath = ftpProperties.getImageAccess() + "/2/" + IMAGE_FOLDER_TYPE_24 + "/" + main.getId() ;
-			String num = authoritySign.substring(authoritySign.indexOf("p")+1);
-			int new_num = Integer.parseInt(num) + 1;
-			main.setAuthoritySign("f"+main.getId()+"p"+new_num);
-			String ticket_encrypt = EncryptUtil.encrypt(main.getId()+"CFCCBD66B12B62E5256FAA90A931A01F", main.getId()+"");//加密后参数
-			ticket_encrypt = URLEncoder.encode(URLEncoder.encode(ticket_encrypt,"UTF-8"), "UTF-8");
-			String rcode = QRcodeKit.buildQRcode(path+"/messMobile/"+main.getId()+"/79B4DE7C/authority.do?ticketCode="+ticket_encrypt+"&sign="+main.getAuthoritySign(), savePath, 250, 250,ftpProperties);//授权扫描
-			String[] code_arr = new String[] {};
-			code_arr = rcode.split("/upload/");
-			//删除原二维码图片
-			String dataUrl = ftpProperties.getImageAccess() + main.getAuthorityUrl().split("image")[1];
-			CommonUtil.delFile(dataUrl);
-			if (!CommonUtil.isEmpty(code_arr) && code_arr.length > 1) {
-				main.setAuthorityUrl(code_arr[1]);
-			}
-			int count = messMainMapper.updateByPrimaryKeySelective(main);
+		params.put("delStatus", 0);
+		List<MessAuthorityMember> list = messAuthorityMemberMapper.getMessAuthorityMember(params);
+		List<MessAuthorityMember> updateList = new ArrayList<MessAuthorityMember>();
+		List<MessAuthorityMember> delList = new ArrayList<MessAuthorityMember>();
+		for (MessAuthorityMember auth : list) {
+			params.put("memberId", auth.getId());
+			int count = messCancelTicketMapper.queryCancelTicketMember(params);
 			if(count>0){
-				result = true;
-				message = "重置成功！";
+				updateList.add(auth);
+			}else{
+				delList.add(auth);
 			}
-		}catch (Exception e) {
-			logger.error("批量删除饭堂授权人员失败，原因：" + e.getMessage());
-			e.printStackTrace();
-			throw new BaseException(message);
-		} finally {
-			msg.put("result", result);
-			msg.put("message", message);
 		}
-		return msg;
+		if(updateList.size()>0){
+			int update_count = messAuthorityMemberMapper.updateAuthorityMembers(updateList);
+		}
+		if(delList.size()>0){
+			int del_count = messAuthorityMemberMapper.delAuthorityMembers(delList);
+		}
+		Integer mainId = CommonUtil.toInteger(params.get("mainId"));
+		String path = params.get("path").toString();
+		MessMain main = messMainMapper.selectByPrimaryKey(mainId);
+		String authoritySign = main.getAuthoritySign();
+		String savePath = ftpProperties.getImageAccess() + "/2/" + IMAGE_FOLDER_TYPE_24 + "/" + main.getId() ;
+		String num = authoritySign.substring(authoritySign.indexOf("p")+1);
+		int new_num = Integer.parseInt(num) + 1;
+		main.setAuthoritySign("f"+main.getId()+"p"+new_num);
+		String ticket_encrypt = EncryptUtil.encrypt(main.getId()+"CFCCBD66B12B62E5256FAA90A931A01F", main.getId()+"");//加密后参数
+		try {
+			ticket_encrypt = URLEncoder.encode(URLEncoder.encode(ticket_encrypt,"UTF-8"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		String rcode = QRcodeKit.buildQRcode(path+"/messMobile/"+main.getId()+"/79B4DE7C/authority.do?ticketCode="+ticket_encrypt+"&sign="+main.getAuthoritySign(), savePath, 250, 250,ftpProperties);//授权扫描
+		String[] code_arr = new String[] {};
+		code_arr = rcode.split("/upload/");
+		//删除原二维码图片
+		String dataUrl = ftpProperties.getImageAccess() + main.getAuthorityUrl().split("image")[1];
+		CommonUtil.delFile(dataUrl);
+		if (!CommonUtil.isEmpty(code_arr) && code_arr.length > 1) {
+			main.setAuthorityUrl(code_arr[1]);
+		}
+		int count = messMainMapper.updateByPrimaryKeySelective(main);
+		if(count>0){
+			message = "重置成功！";
+			return ResponseDTO.createBySuccessMessage(message);
+		}else {
+			return ResponseDTO.createByErrorMessage(message);
+		}
 	}
 
 	@Transactional(rollbackFor = Exception.class)

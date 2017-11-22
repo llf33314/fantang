@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
+import com.gt.mess.dto.ResponseDTO;
 import com.gt.mess.entity.MessAddFood;
 import com.gt.mess.entity.MessMain;
+import com.gt.mess.exception.BaseException;
 import com.gt.mess.properties.WxmpApiProperties;
 import com.gt.mess.service.MessAddFoodService;
 import com.gt.mess.service.MessMainService;
@@ -41,15 +43,12 @@ public class AddFoodController {
     private WxmpApiProperties wxmpApiProperties;
 
     /**
-     * 加菜管理
+     * 加菜列表
      * @param request
-     * @param response
      * @return
      */
     @RequestMapping(value = "/addFoodManage")
-    public ModelAndView addFoodManage(HttpServletRequest request, HttpServletResponse response,
-                                      Page<MessAddFood> page) {
-        ModelAndView mv = new ModelAndView();
+    public ResponseDTO addFoodManage(HttpServletRequest request, Page<MessAddFood> page) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
@@ -57,14 +56,13 @@ public class AddFoodController {
             Integer mainId = messMain.getId();
             Page<MessAddFood> messAddFoods =
                     messAddFoodService.getMessAddFoodPageByMainId(page, mainId, 10);
-            mv.addObject("messAddFoods", messAddFoods);
-            mv.addObject("mainId", mainId);
-            mv.setViewName("merchants/trade/mess/admin/ticketManage/addFoodManage");
+//            mv.addObject("messAddFoods", messAddFoods);
+//            mv.addObject("mainId", mainId);
+            return ResponseDTO.createBySuccess(messAddFoods.getRecords());
         } catch (Exception e) {
             // TODO: handle exception
-            e.printStackTrace();
+            throw new BaseException("加菜列表获取失败");
         }
-        return mv;
     }
 
     /**
@@ -76,70 +74,37 @@ public class AddFoodController {
      */
 //	@SysLogAnnotation(description="微食堂 保存或更新加菜表",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "/saveOrUpdateAddFood")
-    public void saveOrUpdateAddFood(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO saveOrUpdateAddFood(HttpServletRequest request, HttpServletResponse response,
                                     @RequestParam Map<String,Object> params) {
         int data = 0;
         try {
             data = messAddFoodService.saveOrUpdateAddFood(params);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("保存或更新加菜表失败");
         }
     }
 
     /**
      * 删除加菜表
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 删除加菜表",op_function="4")//保存2，修改3，删除4
     @RequestMapping(value = "{afId}/delAddFood")
-    public void delAddFood(HttpServletRequest request, HttpServletResponse response,
-                           @PathVariable("afId") Integer afId) {
-        int data = 0;
+    public ResponseDTO delAddFood(@PathVariable("afId") Integer afId) {
         try {
-            data = messAddFoodService.delAddFood(afId);
+            int data = messAddFoodService.delAddFood(afId);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("删除加菜表失败");
         }
     }
 
@@ -152,7 +117,7 @@ public class AddFoodController {
      */
 //	@SysLogAnnotation(description="微食堂 批量删除加菜表",op_function="4")//保存2，修改3，删除4
     @RequestMapping(value = "delAddFoods")
-    public void delAddFoods(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO delAddFoods(HttpServletRequest request, HttpServletResponse response,
                             @RequestParam String afIds) {
         int data = 0;
         try {
@@ -160,27 +125,13 @@ public class AddFoodController {
             for(String afId : tempArr){
                 data = messAddFoodService.delAddFood(Integer.valueOf(afId));
             }
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("批量删除加菜表失败");
         }
     }
 

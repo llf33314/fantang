@@ -1,13 +1,17 @@
 package com.gt.mess.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
 import com.gt.mess.dao.MessDepartmentMapper;
+import com.gt.mess.dto.ResponseDTO;
+import com.gt.mess.entity.MessBasisSet;
 import com.gt.mess.entity.MessDepartment;
 import com.gt.mess.entity.MessMain;
 import com.gt.mess.entity.MessOldManCard;
+import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.service.MessOldManCardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,14 +50,13 @@ public class OldManCardController {
     /**
      * 老人卡管理
      * @param request
-     * @param response
      * @return
      */
     @RequestMapping(value = "/oldManCardManage")
-    public ModelAndView oldManCardManage(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO oldManCardManage(HttpServletRequest request, 
                                          Page<MessOldManCard> page) {
-        ModelAndView mv = new ModelAndView();
         try {
+            JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
@@ -61,15 +65,15 @@ public class OldManCardController {
                     messOldManCardService.getMessOldManCardPageByMainId(page, mainId, 10);
             List<MessDepartment> messDepartments =
                     messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-            mv.addObject("messDepartments", messDepartments);
-            mv.addObject("messOldManCards", messOldManCards);
-            mv.addObject("mainId", mainId);
-            mv.setViewName("merchants/trade/mess/admin/ticketManage/oldManCardManage");
+            jsonData.put("messDepartments", messDepartments);
+            jsonData.put("messOldManCards", messOldManCards.getRecords());
+            jsonData.put("mainId", mainId);
+//            mv.setViewName("merchants/trade/mess/admin/ticketManage/oldManCardManage");
+            return ResponseDTO.createBySuccess(jsonData);
         } catch (Exception e) {
             // TODO: handle exception
-            e.printStackTrace();
+            throw new BaseException("老人卡管理数据获取失败");
         }
-        return mv;
     }
 
     /**
@@ -79,10 +83,10 @@ public class OldManCardController {
      * @return
      */
     @RequestMapping(value = "/selectOldManCardManage")
-    public ModelAndView selectOldManCardManage(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO selectOldManCardManage(HttpServletRequest request, HttpServletResponse response,
                                                Page<MessOldManCard> page,@RequestParam Map<String,Object> params) {
-        ModelAndView mv = new ModelAndView();
         try {
+            JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
@@ -90,170 +94,95 @@ public class OldManCardController {
             params.put("mainId", mainId);
             Page<MessOldManCard> messOldManCards =
                     messOldManCardService.selectOldManCardManage(page, params, 10);
-            mv.addObject("search", params.get("cardCode").toString());
-            mv.addObject("messOldManCards", messOldManCards);
-            mv.addObject("mainId", mainId);
-            mv.setViewName("merchants/trade/mess/admin/ticketManage/oldManCardManage");
+            jsonData.put("search", params.get("cardCode").toString());
+            jsonData.put("messOldManCards", messOldManCards.getRecords());
+            jsonData.put("mainId", mainId);
+//            mv.setViewName("merchants/trade/mess/admin/ticketManage/oldManCardManage");
+            return ResponseDTO.createBySuccess(jsonData);
         } catch (Exception e) {
             // TODO: handle exception
-            e.printStackTrace();
+            throw new BaseException("老人卡管理(搜索)数据获取失败");
         }
-        return mv;
     }
 
     /**
      * 保存或更新老人卡表
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 保存或更新老人卡表",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "/saveOldManCard")
-    public void saveOldManCard(HttpServletRequest request, HttpServletResponse response,
-                               @RequestParam Map <String,Object> params) {
-        int data = 0;
+    public ResponseDTO saveOldManCard(@RequestParam Map <String,Object> params) {
         try {
-            data = messOldManCardService.saveOldManCard(params);
+            int data = messOldManCardService.saveOldManCard(params);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("保存或更新老人卡表失败");
         }
     }
 
     /**
      * 老人卡补票（扣票）
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 老人卡补票（扣票）",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "/addOrDelTicket")
-    public void addOrDelTicket(HttpServletRequest request, HttpServletResponse response,
-                               @RequestParam Map <String,Object> params) {
-        int data = 0;
+    public ResponseDTO addOrDelTicket(@RequestParam Map <String,Object> params) {
         try {
-            data = messOldManCardService.addOrDelTicket(params);
+            int data = messOldManCardService.addOrDelTicket(params);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("老人卡补票（扣票）失败");
         }
     }
 
     /**
      * 删除老人卡
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 删除老人卡",op_function="4")//保存2，修改3，删除4
     @RequestMapping(value = "/{id}/delOldManCard")
-    public void delOldManCard(HttpServletRequest request, HttpServletResponse response,
-                              @PathVariable("id") Integer id) {
-        int data = 0;
+    public ResponseDTO delOldManCard(@PathVariable("id") Integer id) {
         try {
-            data = messOldManCardService.delOldManCard(id);
+            int data = messOldManCardService.delOldManCard(id);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("删除老人卡失败");
         }
     }
 
     /**
      * 老人卡一键补票（扣票）
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂  老人卡一键补票（扣票）",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "/addOrDelTickets")
-    public void addOrDelTickets(HttpServletRequest request, HttpServletResponse response,
-                                @RequestParam Map <String,Object> params) {
-        int data = 0;
+    public ResponseDTO addOrDelTickets(@RequestParam Map <String,Object> params) {
         try {
+            int data = 0;
             String [] ids = params.get("ids").toString().split(",");
             for(String id : ids){
                 params.put("id", id);
                 data = messOldManCardService.addOrDelTicket(params);
             }
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("老人卡一键补票（扣票）失败");
         }
     }
 }

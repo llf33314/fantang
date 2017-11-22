@@ -1,11 +1,16 @@
 package com.gt.mess.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
+import com.gt.mess.dto.ResponseDTO;
+import com.gt.mess.entity.MessBasisSet;
+import com.gt.mess.entity.MessCardGroup;
 import com.gt.mess.entity.MessDepartment;
 import com.gt.mess.entity.MessMain;
+import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessCardService;
 import com.gt.mess.service.MessDepartmentService;
 import com.gt.mess.service.MessMainService;
@@ -45,82 +50,60 @@ public class DepartmentController {
     /**
      * 部门管理
      * @param request
-     * @param response
      * @return
      */
     @RequestMapping(value = "/departmentManage")
-    public ModelAndView departmentManage(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO departmentManage(HttpServletRequest request,
                                          Page<MessDepartment> page) {
-        ModelAndView mv = new ModelAndView();
         try {
+            JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
             Integer mainId= messMain.getId();
             Page<MessDepartment> messDepartments =
                     messDepartmentService.getMessDepartmentPageByMainId(page, mainId, 10);
-            mv.addObject("messDepartments", messDepartments);
-            mv.addObject("mainId", mainId);
-            mv.setViewName("merchants/trade/mess/admin/basisSet/departmentManage");
+            jsonData.put("messDepartments", messDepartments);
+            jsonData.put("mainId", mainId);
+//            mv.setViewName("merchants/trade/mess/admin/basisSet/departmentManage");
+            return ResponseDTO.createBySuccess(jsonData);
         } catch (Exception e) {
             // TODO: handle exception
-            e.printStackTrace();
+            throw new BaseException("部门管理获取失败");
         }
-        return mv;
     }
 
 
     /**
      * 保存或更新部门
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 保存或更新部门",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "/saveOrUpdateDepartment")
-    public void saveOrUpdateDepartment(HttpServletRequest request, HttpServletResponse response,
-                                       @RequestParam Map<String,Object> params) {
-        int data = 0;
+    public ResponseDTO saveOrUpdateDepartment(@RequestParam Map<String,Object> params) {
         try {
-            data = messDepartmentService.saveOrUpdateDepartment(params);
+            int data = messDepartmentService.saveOrUpdateDepartment(params);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("保存或更新部门失败");
         }
     }
 
     /**
      * 删除部门
-     *
      * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 删除部门",op_function="4")//保存2，修改3，删除4
     @RequestMapping(value = "{depId}/delDepartment")
-    public void delDepartment(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO delDepartment(HttpServletRequest request,
                               @PathVariable("depId") Integer depId) {
-        int data = 0;
         try {
+            int data = 0;
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
@@ -134,30 +117,13 @@ public class DepartmentController {
             }else{
                 data = messDepartmentService.delDepartment(depId);
             }
-
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else if(data == -1) {
-                map.put("status","error1");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("删除部门失败");
         }
     }
 }

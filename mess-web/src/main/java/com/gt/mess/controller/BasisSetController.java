@@ -1,10 +1,13 @@
 package com.gt.mess.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
+import com.gt.mess.dto.ResponseDTO;
 import com.gt.mess.entity.MessBasisSet;
 import com.gt.mess.entity.MessMain;
+import com.gt.mess.exception.BaseException;
 import com.gt.mess.properties.WxmpApiProperties;
 import com.gt.mess.service.MessBasisSetService;
 import com.gt.mess.service.MessCardService;
@@ -51,14 +54,12 @@ public class BasisSetController {
     /**
      * 基础设置
      * @param request
-     * @param response
      * @return
      */
     @RequestMapping(value = "/basisSet")
-    public ModelAndView basisSet(HttpServletRequest request, HttpServletResponse response) {
-        ModelAndView mv = new ModelAndView();
+    public ResponseDTO basisSet(HttpServletRequest request) {
         try {
-//            mv.addObject("videourl", course.urlquery("7"));
+            JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
@@ -66,145 +67,84 @@ public class BasisSetController {
             MessBasisSet messBasisSet =
                     messBasisSetService.getMessBasisSetByMainId(messMain.getId());
             if(messBasisSet == null){
-                mv.addObject("setType", "save");
+                jsonData.put("setType", "save");
             }else{
-                mv.addObject("setType", "update");
+                jsonData.put("setType", "update");
             }
-            String filePath =wxmpApiProperties.getAdminUrl();
             int num = messCardService.getNotCancelTicketNum(messMain.getId());
-            mv.addObject("root", messRootService.getMessRootInfo(request));
-            mv.addObject("url", filePath+"messMobile/"+messMain.getId()+"/79B4DE7C/index.do");
-            mv.addObject("date", new Date());
-            mv.addObject("num", num);
-            mv.addObject("messBasisSet", messBasisSet);
-            mv.addObject("mainId", mainId);
-            mv.setViewName("merchants/trade/mess/admin/basisSet/basisSet");
+            jsonData.put("root", messRootService.getMessRootInfo(request));
+            jsonData.put("url", wxmpApiProperties.getAdminUrl()+"messMobile/"+messMain.getId()+"/79B4DE7C/index.do");
+            jsonData.put("date", new Date());
+            jsonData.put("num", num);
+            jsonData.put("messBasisSet", messBasisSet);
+            jsonData.put("mainId", mainId);
+//            mv.setViewName("merchants/trade/mess/admin/basisSet/basisSet");
+            return ResponseDTO.createBySuccess(jsonData);
         } catch (Exception e) {
             // TODO: handle exception
-            e.printStackTrace();
+            throw new BaseException("基础设置数据获取失败");
         }
-        return mv;
     }
 
     /**
      * 保存或更新基础设置
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 保存或更新基础设置",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "/saveOrUpdateBasisSet")
-    public void saveOrUpdateBasisSet(HttpServletRequest request, HttpServletResponse response,
-                                     @RequestParam Map<String,Object> params) {
-        int data = 0;
+    public ResponseDTO saveOrUpdateBasisSet(@RequestParam Map<String,Object> params) {
         try {
-            data = messBasisSetService.saveOrUpdateBasisSet(params);
+            int data = messBasisSetService.saveOrUpdateBasisSet(params);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("保存或更新基础设置失败");
         }
     }
 
     /**
      * 更改票种类
-     *
      * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂  更改票种类",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "{type}/changeTicketType")
-    public void changeTicketType(HttpServletRequest request, HttpServletResponse response,
+    public ResponseDTO changeTicketType(HttpServletRequest request,
                                  @PathVariable("type") Integer type) {
-        int data = 0;
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
-            data = messCardService.changeTicketType(messMain.getId(),type);
+            int data = messCardService.changeTicketType(messMain.getId(),type);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data != 0){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("更改票种类失败");
         }
     }
 
     /**
      * 一键清空饭卡以及未来订单
-     *
-     * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂  一键清空饭卡以及未来订单",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "{mainId}/cleanTicketAndOrder")
-    public void cleanTicketAndOrder(HttpServletRequest request, HttpServletResponse response,
-                                    @PathVariable("mainId") Integer mainId) {
-        int data = 0;
+    public ResponseDTO cleanTicketAndOrder(@PathVariable("mainId") Integer mainId) {
         try {
-            BusUser busUser = SessionUtils.getLoginUser(request);
-            MessMain messMain =
-                    messMainService.getMessMainByBusId(busUser.getId());
-            if(messMain.getId().equals(mainId)){
-                data = messCardService.cleanTicketAndOrder(mainId);
-            }
+            int data = messCardService.cleanTicketAndOrder(mainId);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data != 0){
-                map.put("status","success");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("更改票种类失败");
         }
     }
 }

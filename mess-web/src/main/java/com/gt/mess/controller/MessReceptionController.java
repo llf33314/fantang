@@ -10,6 +10,7 @@ import com.gt.api.util.SessionUtils;
 import com.gt.mess.dao.MessDepartmentMapper;
 import com.gt.mess.dto.ResponseDTO;
 import com.gt.mess.entity.*;
+import com.gt.mess.exception.BaseException;
 import com.gt.mess.exception.BusinessException;
 import com.gt.mess.exception.ResponseEntityException;
 import com.gt.mess.service.*;
@@ -119,19 +120,6 @@ public class MessReceptionController {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-//            if(url == null){
-//                mapObj.put("url", "redirect:/messMobile/" + busId + "/" + mainId +"/79B4DE7C/userGrant.do");
-//            }else{
-//                Map<String,Object> map=new HashMap<String, Object>();
-//                String redisKey = CommonUtil.getCode();
-//                redisCacheUtil.set(redisKey, url, 300L);
-//                map.put("redisKey", redisKey);
-////				String returnUrl=userLogin(request, response, busId, map);
-////                if(CommonUtil.isNotEmpty(returnUrl)){
-////                    mapObj.put("url", returnUrl);
-////                }
-//            }
-//            return mapObj;
         }else{
             Member member = SessionUtils.getLoginMember(request,busId);
             //如果session里面的数据不为null，判断是否是该公众号下面的粉丝id，是的话，往下走，不是的话，清空缓存
@@ -142,19 +130,6 @@ public class MessReceptionController {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-//                if(url == null){
-//                    mapObj.put("url", "redirect:/messMobile/" + busId + "/" + mainId + "/79B4DE7C/userGrant.do");
-//                }else{
-//                    Map<String,Object> map=new HashMap<String, Object>();
-//                    String redisKey = CommonUtil.getCode();
-//                    redisCacheUtil.set(redisKey, url, 300L);
-//                    map.put("redisKey", redisKey);
-//                    String returnUrl=userLogin(request, response, busId, map);
-//                    if(CommonUtil.isNotEmpty(returnUrl)){
-//                        mapObj.put("url", returnUrl);
-//                    }
-//                }
-//                return mapObj;
             }
         }
         mapObj.put("type", 1);
@@ -166,13 +141,12 @@ public class MessReceptionController {
 
     /**
 	 * 前台操作入口
-	 * @param session
 	 * @param request
 	 * @return
 	 */
 //	@CommAnno(menu_url="messReception/receptionIndex.do")
 	@RequestMapping("receptionIndex")
-	public String messStart(HttpServletRequest request , HttpServletResponse response){
+	public String messStart(HttpServletRequest request){
 		Object indexurl = request.getParameter("indexurl");
 		if(indexurl!=null){
 			request.setAttribute("indexurl", indexurl);
@@ -188,24 +162,24 @@ public class MessReceptionController {
 	/**
 	 * 跳转到现场核销页面
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/toLocaleCancel")
-	public ModelAndView toLocaleCancel(HttpServletRequest request, HttpServletResponse response) {
-		ModelAndView mv = new ModelAndView();
+	public ResponseDTO toLocaleCancel(HttpServletRequest request) {
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
 			if(CommonUtil.isEmpty(messMain)){
-				return new ModelAndView("redirect:/mess/messStart.do");
+				return ResponseDTO.createByError();
 			}
-			mv.addObject("authorityUrl", messMain.getAuthorityUrl());
-			mv.setViewName("merchants/trade/mess/admin/reception/localeCancel");
+			jsonData.put("authorityUrl", messMain.getAuthorityUrl());
+//			mv.setViewName("merchants/trade/mess/admin/reception/localeCancel");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// TODO: handle exception
+			throw new BaseException("基础设置数据获取失败");
 		}
-		return mv;
 	}
 
 	/**
@@ -215,21 +189,22 @@ public class MessReceptionController {
 	 * @return
 	 */
 	@RequestMapping(value = "/toListCancel")
-	public ModelAndView toListCancel(HttpServletRequest request, HttpServletResponse response) {
-		ModelAndView mv = new ModelAndView();
+	public ResponseDTO toListCancel(HttpServletRequest request, HttpServletResponse response) {
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
 			if(CommonUtil.isEmpty(messMain)){
-				return new ModelAndView("redirect:/mess/messStart.do");
+				return ResponseDTO.createByError();
 			}
 			int mainId = messMain.getBusId();
-			mv.addObject("mainId", mainId);
-			mv.setViewName("merchants/trade/mess/admin/reception/listCancel");
+			jsonData.put("mainId", mainId);
+//			mv.setViewName("merchants/trade/mess/admin/reception/listCancel");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// TODO: handle exception
+			throw new BaseException("基础设置数据获取失败");
 		}
-		return mv;
 	}
 
 	/**
@@ -621,38 +596,37 @@ public class MessReceptionController {
 	 * @return
 	 */
 	@RequestMapping(value = "/addFoodOrder")
-	public ModelAndView addFoodOrder(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO addFoodOrder(HttpServletRequest request, HttpServletResponse response,
 			Page<MessAddFoodOrder> page) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId= messMain.getId();
 			Page<MessAddFoodOrder> messAddFoodOrders =
 					messAddFoodOrderService.getMessAddFoodOrderPageByMainId(page, mainId, 10);
-			mv.addObject("messAddFoodOrders", messAddFoodOrders);
-			mv.addObject("url", "messReception/addFoodOrder.do");
-			mv.addObject("mainId", mainId);
-			mv.setViewName("merchants/trade/mess/admin/reception/addFoodOrder");
+			jsonData.put("messAddFoodOrders", messAddFoodOrders);
+			jsonData.put("url", "messReception/addFoodOrder.do");
+			jsonData.put("mainId", mainId);
+//			mv.setViewName("merchants/trade/mess/admin/reception/addFoodOrder");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("加餐核销订单数据获取失败");
 		}
-		return mv;
 	}
 
 	/**
 	 * 加餐核销订单（搜索）
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/selectAddFoodOrder")
-	public ModelAndView selectAddFoodOrder(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO selectAddFoodOrder(HttpServletRequest request,
 			Page<MessAddFoodOrder> page,@RequestParam Map<String,Object> params) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
@@ -660,16 +634,16 @@ public class MessReceptionController {
 			params.put("mainId", mainId);
 			Page<MessAddFoodOrder> messAddFoodOrders =
 					messAddFoodOrderService.selectAddFoodOrder(page, params, 10);
-			mv.addObject("messAddFoodOrders", messAddFoodOrders);
-			mv.addObject("url", "messReception/selectAddFoodOrder.do");
-			mv.addObject("params", params);
-			mv.addObject("mainId", mainId);
-			mv.setViewName("merchants/trade/mess/admin/reception/addFoodOrder");
+			jsonData.put("messAddFoodOrders", messAddFoodOrders);
+			jsonData.put("url", "messReception/selectAddFoodOrder.do");
+			jsonData.put("params", params);
+			jsonData.put("mainId", mainId);
+//			mv.setViewName("merchants/trade/mess/admin/reception/addFoodOrder");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("加餐核销订单（搜索）订单数据获取失败");
 		}
-		return mv;
 	}
 
 	/**
@@ -713,14 +687,13 @@ public class MessReceptionController {
 	/**
 	 * 老人卡
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/oldManCard")
-	public ModelAndView oldManCard(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO oldManCard(HttpServletRequest request,
 			Page<MessOldManCard> page) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
@@ -729,28 +702,27 @@ public class MessReceptionController {
 					messOldManCardService.getMessOldManCardPageByMainId(page, mainId, 10);
 			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-			mv.addObject("messDepartments", messDepartments);
-			mv.addObject("messOldManCards", messOldManCards);
-			mv.addObject("mainId", mainId);
-			mv.setViewName("merchants/trade/mess/admin/reception/oldManCard");
+			jsonData.put("messDepartments", messDepartments);
+			jsonData.put("messOldManCards", messOldManCards);
+			jsonData.put("mainId", mainId);
+//			mv.setViewName("merchants/trade/mess/admin/reception/oldManCard");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("老人卡订单数据获取失败");
 		}
-		return mv;
 	}
 
 	/**
 	 * 老人卡(搜索)
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/selectOldManCard")
-	public ModelAndView selectOldManCard(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO selectOldManCard(HttpServletRequest request,
 			Page<MessOldManCard> page,@RequestParam Map <String,Object> params) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
@@ -758,28 +730,27 @@ public class MessReceptionController {
 			params.put("mainId", mainId);
 			Page<MessOldManCard> messOldManCards =
 					messOldManCardService.selectOldManCardManage(page, params, 10);
-			mv.addObject("search", params.get("cardCode").toString());
-			mv.addObject("messOldManCards", messOldManCards);
-			mv.addObject("mainId", mainId);
-			mv.setViewName("merchants/trade/mess/admin/reception/oldManCard");
+			jsonData.put("search", params.get("cardCode").toString());
+			jsonData.put("messOldManCards", messOldManCards);
+			jsonData.put("mainId", mainId);
+//			mv.setViewName("merchants/trade/mess/admin/reception/oldManCard");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("老人卡(搜索)订单数据获取失败");
 		}
-		return mv;
 	}
 
 	/**
 	 * 普通饭卡
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/commonCard")
-	public ModelAndView commonCard(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO commonCard(HttpServletRequest request,
 			Page<MessCard> page) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
@@ -788,65 +759,47 @@ public class MessReceptionController {
 					messCardService.commonCard(page, mainId, 10);
 			MessBasisSet messBasisSet =
 					messBasisSetService.getMessBasisSetByMainId(messMain.getId());
-			mv.addObject("messBasisSet", messBasisSet);
-			mv.addObject("messCards", messCards);
-			mv.addObject("mainId", mainId);
-			mv.setViewName("merchants/trade/mess/admin/reception/commonCard");
+			jsonData.put("messBasisSet", messBasisSet);
+			jsonData.put("messCards", messCards);
+			jsonData.put("mainId", mainId);
+//			mv.setViewName("merchants/trade/mess/admin/reception/commonCard");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("普通饭卡订单数据获取失败");
 		}
-		return mv;
 	}
 
 	/**
 	 * 核销饭票（手动核销）
-	 * @param request
-	 * @param response
+	 * @param params
 	 * @return
 	 */
 //	@SysLogAnnotation(description="微食堂 核销饭票（手动核销）",op_function="3")//保存2，修改3，删除4
 	@RequestMapping(value = "/cancelTicket")
-	public void cancelTicket(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam Map <String,Object> params) {
-		int data = 0;
+	public ResponseDTO cancelTicket(@RequestParam Map <String,Object> params) {
 		try {
-			data = messCardService.cancelTicket(params);
+			int data = messCardService.cancelTicket(params);
+			if(data == 1)
+				return ResponseDTO.createBySuccess();
+			else
+				return ResponseDTO.createByError();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		PrintWriter out = null;
-		Map<String,Object> map = new HashMap<String,Object>();
-		try {
-			out = response.getWriter();
-			if(data == 1){
-				map.put("status","success");
-			}else{
-				map.put("status","error");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			map.put("status","error");
-		} finally {
-			out.write(JSON.toJSONString(map).toString());
-			if (out != null) {
-				out.close();
-			}
+			// TODO: handle exception
+			throw new BaseException("核销饭票（手动核销）失败");
 		}
 	}
 
 	/**
 	 * 普通饭卡(根据卡号查询)
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/selectCommonCardByCardCode")
-	public ModelAndView selectCommonCardByCardCode(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO selectCommonCardByCardCode(HttpServletRequest request,
 			Page<MessCard> page,@RequestParam String search) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
@@ -858,16 +811,16 @@ public class MessReceptionController {
 					messCardService.selectCardApplyByCardCode(page, map, 10);
 			MessBasisSet messBasisSet =
 					messBasisSetService.getMessBasisSetByMainId(messMain.getId());
-			mv.addObject("messBasisSet", messBasisSet);
-			mv.addObject("search", search);
-			mv.addObject("messCards", messCards);
-			mv.addObject("selectType", 0);//0卡号查询 1名字查询 2部门查询
-			mv.setViewName("merchants/trade/mess/admin/reception/commonCard");
+			jsonData.put("messBasisSet", messBasisSet);
+			jsonData.put("search", search);
+			jsonData.put("messCards", messCards);
+			jsonData.put("selectType", 0);//0卡号查询 1名字查询 2部门查询
+//			mv.setViewName("merchants/trade/mess/admin/reception/commonCard");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("普通饭卡(根据卡号查询)数据获取失败");
 		}
-		return mv;
 	}
 
 
@@ -876,14 +829,13 @@ public class MessReceptionController {
 	/**
 	 * 老人卡&普通卡（手动核销列表）
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/{type}/messOldManCardOrder")
-	public ModelAndView messOldManCardOrder(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO messOldManCardOrder(HttpServletRequest request,
 			@PathVariable("type") Integer type,Page<MessOldManCardOrder> page) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
@@ -892,40 +844,39 @@ public class MessReceptionController {
 			if(type == 3){
 				messOldManCardOrders =
 						messOldManCardOrderService.getCommonMessCardOrderPageByMainId(page, mainId, 10);
-				mv.addObject("url", "messReception/3/messOldManCardOrder.do");
-				mv.setViewName("merchants/trade/mess/admin/reception/manualListCancel");
+				jsonData.put("url", "messReception/3/messOldManCardOrder.do");
+//				mv.setViewName("merchants/trade/mess/admin/reception/manualListCancel");
 			}else if(type == 0){
 				messOldManCardOrders =
 						messOldManCardOrderService.getMessOldManCardOrderPageByMainId(page, mainId, 10);
-				mv.addObject("url", "messReception/0/messOldManCardOrder.do");
-				mv.setViewName("merchants/trade/mess/admin/reception/oldManListCancel");
+				jsonData.put("url", "messReception/0/messOldManCardOrder.do");
+//				mv.setViewName("merchants/trade/mess/admin/reception/oldManListCancel");
 			}else if(type == 1){
 				messOldManCardOrders =
 						messOldManCardOrderService.getMessOldManCardOrderPageByMainId2(page, mainId, 10);
-				mv.addObject("url", "messReception/1/messOldManCardOrder.do");
-				mv.setViewName("merchants/trade/mess/admin/mealOrder/oldManCardOrder");
+				jsonData.put("url", "messReception/1/messOldManCardOrder.do");
+//				mv.setViewName("merchants/trade/mess/admin/mealOrder/oldManCardOrder");
 			}
 
-			mv.addObject("messOldManCardOrders", messOldManCardOrders);
-			mv.addObject("mainId", mainId);
+			jsonData.put("messOldManCardOrders", messOldManCardOrders);
+			jsonData.put("mainId", mainId);
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("老人卡&普通卡（手动核销列表）数据获取失败");
 		}
-		return mv;
 	}
 
 	/**
 	 * 老人卡&普通卡(搜索)
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/{type}/selectMessOldManCardOrder")
-	public ModelAndView selectMessOldManCardOrder(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO selectMessOldManCardOrder(HttpServletRequest request,
 			@PathVariable("type") Integer type,Page<MessOldManCardOrder> page,@RequestParam Map <String,Object> params) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
@@ -935,28 +886,28 @@ public class MessReceptionController {
 			if(type == 3){
 				messOldManCardOrders =
 						messOldManCardOrderService.selectMessCommonCardOrder(page, params, 10);
-				mv.addObject("url", "messReception/3/selectMessOldManCardOrder.do");
-				mv.setViewName("merchants/trade/mess/admin/reception/manualListCancel");
+				jsonData.put("url", "messReception/3/selectMessOldManCardOrder.do");
+//				mv.setViewName("merchants/trade/mess/admin/reception/manualListCancel");
 			}else if(type == 0){
 				messOldManCardOrders =
 						messOldManCardOrderService.selectMessOldManCardOrder(page, params, 10);
-				mv.addObject("url", "messReception/0/selectMessOldManCardOrder.do");
-				mv.setViewName("merchants/trade/mess/admin/reception/oldManListCancel");
+				jsonData.put("url", "messReception/0/selectMessOldManCardOrder.do");
+//				mv.setViewName("merchants/trade/mess/admin/reception/oldManListCancel");
 			}else if(type == 1){
 				messOldManCardOrders =
 						messOldManCardOrderService.selectMessOldManCardOrder2(page, params, 10);
-				mv.addObject("url", "messReception/1/selectMessOldManCardOrder.do");
-				mv.setViewName("merchants/trade/mess/admin/mealOrder/oldManCardOrder");
+				jsonData.put("url", "messReception/1/selectMessOldManCardOrder.do");
+//				mv.setViewName("merchants/trade/mess/admin/mealOrder/oldManCardOrder");
 			}
-			mv.addObject("search", params.get("cardCode").toString());
-			mv.addObject("params", params);
-			mv.addObject("messOldManCardOrders", messOldManCardOrders);
-			mv.addObject("mainId", mainId);
+			jsonData.put("search", params.get("cardCode").toString());
+			jsonData.put("params", params);
+			jsonData.put("messOldManCardOrders", messOldManCardOrders);
+			jsonData.put("mainId", mainId);
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("老人卡&普通卡(搜索)数据获取失败");
 		}
-		return mv;
 	}
 
 	/**

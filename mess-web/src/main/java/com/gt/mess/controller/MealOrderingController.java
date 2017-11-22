@@ -3,8 +3,10 @@ package com.gt.mess.controller;
 import com.alibaba.fastjson.JSON;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
+import com.gt.mess.dto.ResponseDTO;
 import com.gt.mess.entity.MessMain;
 import com.gt.mess.entity.MessOrderManage;
+import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.service.MessOrderManageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,108 +39,52 @@ public class MealOrderingController {
     //	订餐管理模块
 
     /**
-     * 订餐管理入口
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-//	@CommAnno(menu_url="mess/messOrderManageIndex.do")
-    @RequestMapping(value = "/messOrderManageIndex")
-    public ModelAndView messOrderManageIndex(HttpServletRequest request, HttpServletResponse response) {
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("merchants/trade/mess/admin/messOrderManage/messOrderManageIndex");
-        return mv;
-    }
-
-    /**
-     * 订餐管理
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "/messOrderManage")
-    public ModelAndView messOrderManage(HttpServletRequest request, HttpServletResponse response) {
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("merchants/trade/mess/admin/messOrderManage/messOrderManage");
-        return mv;
-    }
-
-    /**
      * 获取不可订餐日子
-     *
      * @param request
-     * @param response
      * @return
      */
     @RequestMapping(value = "/getMessOrderList")
-    public void getMessOrderList(HttpServletRequest request, HttpServletResponse response
-    ) {
-        PrintWriter out = null;
+    public ResponseDTO getMessOrderList(HttpServletRequest request) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
             Integer mainId = messMain.getId();
-            out = response.getWriter();
             List<MessOrderManage> messOrderManages =
                     messOrderManageService.getMessOrderManageListByMainId(mainId);
             StringBuffer buffer = new StringBuffer();
             for(MessOrderManage  messOrderManage: messOrderManages){
                 buffer.append(messOrderManage.getDay().toString()+",");
             }
-            out.write(buffer.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                out.close();
-            }
+            return ResponseDTO.createBySuccess(buffer.toString());
+        } catch (Exception e) {
+            // TODO: handle exception
+            throw new BaseException("获取不可订餐日子失败");
         }
     }
 
     /**
      * 保存或更新订餐管理
-     *
      * @param request
-     * @param response
      * @return
      */
 //	@SysLogAnnotation(description="微食堂 保存或更新订餐管理",op_function="3")//保存2，修改3，删除4
     @RequestMapping(value = "/saveOrUpdateMessOrderManage")
-    public void saveOrUpdateOrderManage(HttpServletRequest request, HttpServletResponse response,
-                                        @RequestParam Map<String,Object> params) {
-        int data = 0;
+    public ResponseDTO saveOrUpdateOrderManage(HttpServletRequest request, @RequestParam Map<String,Object> params) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
             Integer mainId = messMain.getId();
             params.put("mainId", mainId);
-            data = messOrderManageService.saveOrUpdateMessOrderManage(params);
+            int data = messOrderManageService.saveOrUpdateMessOrderManage(params);
+            if(data == 1)
+                return ResponseDTO.createBySuccess();
+            else
+                return ResponseDTO.createByError();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        PrintWriter out = null;
-        Map<String,Object> map = new HashMap<String,Object>();
-        try {
-            out = response.getWriter();
-            if(data == 1){
-                map.put("status","success");
-            }else if(data == -1){
-                map.put("status","error1");
-            }else{
-                map.put("status","error");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            map.put("status","error");
-        } finally {
-            out.write(JSON.toJSONString(map).toString());
-            if (out != null) {
-                out.close();
-            }
+            // TODO: handle exception
+            throw new BaseException("保存或更新订餐管理失败");
         }
     }
 }

@@ -1,10 +1,13 @@
 package com.gt.mess.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
 import com.gt.mess.dao.MessDepartmentMapper;
+import com.gt.mess.dto.ResponseDTO;
 import com.gt.mess.entity.*;
+import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessBuyTicketOrderService;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.service.MessMealOrderService;
@@ -20,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -91,38 +95,22 @@ public class MessOrderController {
 //	数据统计模块
 	
 	/**
-	 * 数据统计入口
-	 * 
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-//	@CommAnno(menu_url="messOrder/mealOrderIndex.do")
-	@RequestMapping(value = "/mealOrderIndex")
-	public ModelAndView mealOrderIndex(HttpServletRequest request, HttpServletResponse response) {		
-		ModelAndView mv = new ModelAndView();
-		mv.setViewName("merchants/trade/mess/admin/mealOrder/mealOrderIndex");
-		return mv;
-	}
-	
-	/**
 	 * 订餐记录
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/mealOrder")
-	public ModelAndView mealOrder(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO mealOrder(HttpServletRequest request,
 			Page<MessMealOrder> page) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
-			MessMain messMain = 
+			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
 			Page<MessMealOrder> messMealOrders =
 					messMealOrderService.getMessMealOrderPageByMainId(page, mainId, 10);
-			List<MessMealOrder> messMealOrderList = 
+			List<MessMealOrder> messMealOrderList =
 					messMealOrderService.getMessMealOrderListforToday(mainId);
 			//人数
 			Integer breakfastNum = 0;
@@ -149,51 +137,50 @@ public class MessOrderController {
 					nightNum++;
 				}
 			}
-			List<MessDepartment> messDepartments = 
+			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-			mv.addObject("messDepartments", messDepartments);
-			
-			mv.addObject("breakfastNum", breakfastNum);
-			mv.addObject("lunchNum", lunchNum);
-			mv.addObject("dinnerNum", dinnerNum);
-			mv.addObject("nightNum", nightNum);
-			
-			mv.addObject("breakfastMealNum", breakfastMealNum);
-			mv.addObject("lunchMealNum", lunchMealNum);
-			mv.addObject("dinnerMealNum", dinnerMealNum);
-			mv.addObject("nightMealNum", nightMealNum);
-			
-			mv.addObject("url", "messOrder/mealOrder.do");
-			mv.addObject("messMealOrders", messMealOrders);
-			mv.addObject("mainId", mainId);
-			mv.setViewName("merchants/trade/mess/admin/mealOrder/mealOrder");
+			jsonData.put("messDepartments", messDepartments);
+
+			jsonData.put("breakfastNum", breakfastNum);
+			jsonData.put("lunchNum", lunchNum);
+			jsonData.put("dinnerNum", dinnerNum);
+			jsonData.put("nightNum", nightNum);
+
+			jsonData.put("breakfastMealNum", breakfastMealNum);
+			jsonData.put("lunchMealNum", lunchMealNum);
+			jsonData.put("dinnerMealNum", dinnerMealNum);
+			jsonData.put("nightMealNum", nightMealNum);
+
+			jsonData.put("url", "messOrder/mealOrder.do");
+			jsonData.put("messMealOrders", messMealOrders.getRecords());
+			jsonData.put("mainId", mainId);
+//			mv.setViewName("merchants/trade/mess/admin/mealOrder/mealOrder");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("订餐记录数据获取失败");
 		}
-		return mv;
 	}
 	
 	/**
 	 * 订餐记录（根据条件搜索）
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/selectMealOrder")
-	public ModelAndView selectMealOrder(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO selectMealOrder(HttpServletRequest request,
 			Page<MessMealOrder> page,@RequestParam Map <String,Object> params) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
-			MessMain messMain = 
+			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
 			params.put("mainId", mainId);
-			Page<MessMealOrder> messMealOrders = 
+			Page<MessMealOrder> messMealOrders =
 					messMealOrderService.selectMealOrder(page, params, 10);
-			
-			List<MessMealOrder> messMealOrderList = 
+
+			List<MessMealOrder> messMealOrderList =
 					messMealOrderService.getMessMealOrderListforToday(mainId);
 			//人数
 			Integer breakfastNum = 0;
@@ -220,41 +207,39 @@ public class MessOrderController {
 					nightNum++;
 				}
 			}
-			List<MessDepartment> messDepartments = 
+			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-			mv.addObject("messDepartments", messDepartments);
-			
-			mv.addObject("breakfastNum", breakfastNum);
-			mv.addObject("lunchNum", lunchNum);
-			mv.addObject("dinnerNum", dinnerNum);
-			mv.addObject("nightNum", nightNum);
-			
-			mv.addObject("breakfastMealNum", breakfastMealNum);
-			mv.addObject("lunchMealNum", lunchMealNum);
-			mv.addObject("dinnerMealNum", dinnerMealNum);
-			mv.addObject("nightMealNum", nightMealNum);
-			
-			mv.addObject("params", params);
-			mv.addObject("url", "messOrder/selectMealOrder.do");
-			mv.addObject("messMealOrders", messMealOrders);
-			mv.addObject("mainId", mainId);
-			mv.setViewName("merchants/trade/mess/admin/mealOrder/mealOrder");
+			jsonData.put("messDepartments", messDepartments);
+
+			jsonData.put("breakfastNum", breakfastNum);
+			jsonData.put("lunchNum", lunchNum);
+			jsonData.put("dinnerNum", dinnerNum);
+			jsonData.put("nightNum", nightNum);
+
+			jsonData.put("breakfastMealNum", breakfastMealNum);
+			jsonData.put("lunchMealNum", lunchMealNum);
+			jsonData.put("dinnerMealNum", dinnerMealNum);
+			jsonData.put("nightMealNum", nightMealNum);
+
+			jsonData.put("params", params);
+			jsonData.put("url", "messOrder/selectMealOrder.do");
+			jsonData.put("messMealOrders", messMealOrders.getRecords());
+			jsonData.put("mainId", mainId);
+//			mv.setViewName("merchants/trade/mess/admin/mealOrder/mealOrder");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("订餐记录（根据条件搜索）数据获取失败");
 		}
-		return mv;
 	}
 	
 	/**
 	 * 导出订餐记录
-	 * @param request
 	 * @param response
 	 * @param params
 	 */
 	@RequestMapping(value = "/exportsMealOrder")
-	public void exportsMealOrder(HttpServletRequest request,
-			HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	public void exportsMealOrder(HttpServletResponse response,@RequestParam Map <String,Object> params) {
 		try {
 			Map<String, Object> msg = messMealOrderService.exports(params);
 			if ((boolean) msg.get("result")) {
@@ -280,13 +265,11 @@ public class MessOrderController {
 	
 	/**
 	 * 导出订餐记录(月总)
-	 * @param request
 	 * @param response
 	 * @param params
 	 */
 	@RequestMapping(value = "/exportsMealOrderForMonth")
-	public void exportsMealOrderForMonth(HttpServletRequest request,
-			HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	public void exportsMealOrderForMonth(HttpServletResponse response,@RequestParam Map <String,Object> params) {
 		try {
 			Map<String, Object> msg = messMealOrderService.exportsMealOrderForMonth(params);
 			if ((boolean) msg.get("result")) {
@@ -313,76 +296,72 @@ public class MessOrderController {
 	/**
 	 * 购票统计
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/buyTicketStatistics")
-	public ModelAndView buyTicketStatistics(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO buyTicketStatistics(HttpServletRequest request,
 			Page<MessBuyTicketOrder> page) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
-			MessMain messMain = 
+			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			Page<MessBuyTicketOrder> messBuyTicketOrders = 
+			Page<MessBuyTicketOrder> messBuyTicketOrders =
 					messBuyTicketOrderService.getMessBuyTicketOrderPageMainId(page, mainId, 10);
-			List<MessDepartment> messDepartments = 
+			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-			mv.addObject("messDepartments", messDepartments);
-			mv.addObject("messBuyTicketOrders", messBuyTicketOrders);
-			mv.addObject("mainId", mainId);
-			mv.addObject("url", "messOrder/buyTicketStatistics.do");
-			mv.setViewName("merchants/trade/mess/admin/mealOrder/buyTicketStatistics");
+			jsonData.put("messDepartments", messDepartments);
+			jsonData.put("messBuyTicketOrders", messBuyTicketOrders.getRecords());
+			jsonData.put("mainId", mainId);
+			jsonData.put("url", "messOrder/buyTicketStatistics.do");
+//			mv.setViewName("merchants/trade/mess/admin/mealOrder/buyTicketStatistics");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("购票统计数据获取失败");
 		}
-		return mv;
 	}
 	
 	/**
 	 * 购票统计(根据条件查询)
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/selectBuyTicketStatistics")
-	public ModelAndView selectBuyTicketStatistics(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO selectBuyTicketStatistics(HttpServletRequest request,
 			Page<MessBuyTicketOrder> page,@RequestParam Map <String,Object> params) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
-			MessMain messMain = 
+			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
 			params.put("mainId", mainId);
-			Page<MessBuyTicketOrder> messBuyTicketOrders = 
+			Page<MessBuyTicketOrder> messBuyTicketOrders =
 					messBuyTicketOrderService.selectBuyTicketStatistics(page, params, 10);
-			List<MessDepartment> messDepartments = 
+			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-			mv.addObject("messDepartments", messDepartments);
-			mv.addObject("messBuyTicketOrders", messBuyTicketOrders);
-			mv.addObject("mainId", mainId);
-			mv.addObject("params", params);
-			mv.addObject("url", "messOrder/selectBuyTicketStatistics.do");
-			mv.setViewName("merchants/trade/mess/admin/mealOrder/buyTicketStatistics");
+			jsonData.put("messDepartments", messDepartments);
+			jsonData.put("messBuyTicketOrders", messBuyTicketOrders.getRecords());
+			jsonData.put("mainId", mainId);
+			jsonData.put("params", params);
+			jsonData.put("url", "messOrder/selectBuyTicketStatistics.do");
+//			mv.setViewName("merchants/trade/mess/admin/mealOrder/buyTicketStatistics");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("购票统计(根据条件查询)数据获取失败");
 		}
-		return mv;
 	}
 	
 	/**
 	 * 导出购票记录
-	 * @param request
 	 * @param response
 	 * @param params
 	 */
 	@RequestMapping(value = "/exportsBuyTicket")
-	public void exportsBuyTicket(HttpServletRequest request,
-			HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	public void exportsBuyTicket(HttpServletResponse response,@RequestParam Map <String,Object> params) {
 		try {
 			Map<String, Object> msg = messBuyTicketOrderService.exports(params);
 			if ((boolean) msg.get("result")) {
@@ -409,32 +388,31 @@ public class MessOrderController {
 	/**
 	 * 商家补助
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/subsidyTicket")
-	public ModelAndView subsidyTicket(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO subsidyTicket(HttpServletRequest request,
 			Page<MessBuyTicketOrder> page) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
-			MessMain messMain = 
+			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			Page<MessBuyTicketOrder> messBuyTicketOrders = 
+			Page<MessBuyTicketOrder> messBuyTicketOrders =
 					messBuyTicketOrderService.getSubsidyTicketOrderPageMainId(page, mainId, 10);
-			List<MessDepartment> messDepartments = 
+			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-			mv.addObject("messDepartments", messDepartments);
-			mv.addObject("messBuyTicketOrders", messBuyTicketOrders);
-			mv.addObject("mainId", mainId);
-			mv.addObject("url", "messOrder/subsidyTicket.do");
-			mv.setViewName("merchants/trade/mess/admin/mealOrder/subsidyTicket");
+			jsonData.put("messDepartments", messDepartments);
+			jsonData.put("messBuyTicketOrders", messBuyTicketOrders.getRecords());
+			jsonData.put("mainId", mainId);
+			jsonData.put("url", "messOrder/subsidyTicket.do");
+//			mv.setViewName("merchants/trade/mess/admin/mealOrder/subsidyTicket");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("商家补助数据获取失败");
 		}
-		return mv;
 	}
 	
 	/**
@@ -444,41 +422,39 @@ public class MessOrderController {
 	 * @return
 	 */
 	@RequestMapping(value = "/selectSubsidyTicket")
-	public ModelAndView selectSubsidyTicket(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO selectSubsidyTicket(HttpServletRequest request,
 			Page<MessBuyTicketOrder> page,@RequestParam Map <String,Object> params) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
-			MessMain messMain = 
+			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
 			params.put("mainId", mainId);
-			Page<MessBuyTicketOrder> messBuyTicketOrders = 
+			Page<MessBuyTicketOrder> messBuyTicketOrders =
 					messBuyTicketOrderService.selectSubsidyTicket(page, params, 10);
-			List<MessDepartment> messDepartments = 
+			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-			mv.addObject("messDepartments", messDepartments);
-			mv.addObject("messBuyTicketOrders", messBuyTicketOrders);
-			mv.addObject("mainId", mainId);
-			mv.addObject("params", params);
-			mv.addObject("url", "messOrder/selectSubsidyTicket.do");
-			mv.setViewName("merchants/trade/mess/admin/mealOrder/subsidyTicket");
+			jsonData.put("messDepartments", messDepartments);
+			jsonData.put("messBuyTicketOrders", messBuyTicketOrders.getRecords());
+			jsonData.put("mainId", mainId);
+			jsonData.put("params", params);
+			jsonData.put("url", "messOrder/selectSubsidyTicket.do");
+//			mv.setViewName("merchants/trade/mess/admin/mealOrder/subsidyTicket");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("商家补助(根据条件查询)数据获取失败");
 		}
-		return mv;
 	}
 	
 	/**
 	 * 导出补助记录
-	 * @param request
 	 * @param response
 	 * @param params
 	 */
 	@RequestMapping(value = "/exportsSubsidyTicket")
-	public void exportsSubsidyTicket(HttpServletRequest request,
-			HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	public void exportsSubsidyTicket(HttpServletResponse response,@RequestParam Map <String,Object> params) {
 		try {
 			Map<String, Object> msg = messBuyTicketOrderService.exportsSubsidyTicket(params);
 			if ((boolean) msg.get("result")) {
@@ -505,76 +481,72 @@ public class MessOrderController {
 	/**
 	 * 充值记录
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/topUpOrder")
-	public ModelAndView topUpOrder(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO topUpOrder(HttpServletRequest request,
 			Page<MessTopUpOrder> page) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
-			MessMain messMain = 
+			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			Page<MessTopUpOrder> messTopUpOrders = 
+			Page<MessTopUpOrder> messTopUpOrders =
 					messTopUpOrderService.getMessTopUpOrderPageByMainId(page, mainId, 10);
-			List<MessDepartment> messDepartments = 
+			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-			mv.addObject("messDepartments", messDepartments);
-			mv.addObject("messTopUpOrders", messTopUpOrders);
-			mv.addObject("mainId", mainId);
-			mv.addObject("url", "messOrder/topUpOrder.do");
-			mv.setViewName("merchants/trade/mess/admin/mealOrder/topUpOrder");
+			jsonData.put("messDepartments", messDepartments);
+			jsonData.put("messTopUpOrders", messTopUpOrders.getRecords());
+			jsonData.put("mainId", mainId);
+			jsonData.put("url", "messOrder/topUpOrder.do");
+//			mv.setViewName("merchants/trade/mess/admin/mealOrder/topUpOrder");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("充值记录数据获取失败");
 		}
-		return mv;
 	}
 	
 	/**
 	 * 充值记录(根据条件查询)
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@RequestMapping(value = "/selectTopUpOrder")
-	public ModelAndView selectTopUpOrder(HttpServletRequest request, HttpServletResponse response,
+	public ResponseDTO selectTopUpOrder(HttpServletRequest request,
 			Page<MessTopUpOrder> page,@RequestParam Map <String,Object> params) {
-		ModelAndView mv = new ModelAndView();
 		try {
+			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
-			MessMain messMain = 
+			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
 			params.put("mainId", mainId);
-			Page<MessTopUpOrder> messTopUpOrders = 
+			Page<MessTopUpOrder> messTopUpOrders =
 					messTopUpOrderService.selectTopUpOrder(page, params, 10);
-			List<MessDepartment> messDepartments = 
+			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
-			mv.addObject("messDepartments", messDepartments);
-			mv.addObject("messTopUpOrders", messTopUpOrders);
-			mv.addObject("mainId", mainId);
-			mv.addObject("params", params);
-			mv.addObject("url", "messOrder/selectTopUpOrder.do");
-			mv.setViewName("merchants/trade/mess/admin/mealOrder/topUpOrder");
+			jsonData.put("messDepartments", messDepartments);
+			jsonData.put("messTopUpOrders", messTopUpOrders);
+			jsonData.put("mainId", mainId);
+			jsonData.put("params", params);
+			jsonData.put("url", "messOrder/selectTopUpOrder.do");
+//			mv.setViewName("merchants/trade/mess/admin/mealOrder/topUpOrder");
+			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			throw new BaseException("充值记录(根据条件查询)数据获取失败");
 		}
-		return mv;
 	}
 	
 	/**
 	 * 导出充值记录
-	 * @param request
 	 * @param response
 	 * @param params
 	 */
 	@RequestMapping(value = "/exportsTopUpOrder")
-	public void exportsTopUpOrder(HttpServletRequest request,
-			HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	public void exportsTopUpOrder(HttpServletResponse response,@RequestParam Map <String,Object> params) {
 		try {
 			Map<String, Object> msg = messTopUpOrderService.exports(params);
 			if ((boolean) msg.get("result")) {
