@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
+import com.gt.mess.vo.SaveOrUpdateBasisSetVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,37 +33,31 @@ public class MessBasisSetServiceImpl implements MessBasisSetService{
 	
 	@Transactional
 	@Override
-	public int saveOrUpdateBasisSet(Map<String, Object> params) throws Exception{
+	public int saveOrUpdateBasisSet(SaveOrUpdateBasisSetVo saveVo) throws Exception{
 		// TODO Auto-generated method stub
 		int dataType = 0;
-		String setType = params.get("setType").toString();
 		MessBasisSet messBasisSet = null;
-		if("save".equals(setType)){
+		if("save".equals(saveVo.getSetType())){
 			messBasisSet = new MessBasisSet();	
 		}else{
-			messBasisSet = messBasisSetMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
+			messBasisSet = messBasisSetMapper.selectByPrimaryKey(saveVo.getId());
 		}
 		
 		SimpleDateFormat sdf = new SimpleDateFormat ("HH:mm", Locale.UK);
-		String messType = params.get("messType").toString();
-		Integer bitUniversal = Integer.valueOf(params.get("bitUniversal").toString());
+		String messType = saveVo.getMessType();
+		Integer bitUniversal = saveVo.getBitUniversal();
 		messBasisSet.setMessType(messType);
-		try {
-			messBasisSet.setCapNum(Integer.valueOf(params.get("capNum").toString()));
-		} catch (Exception e) {
-			// TODO: handle exception
-			messBasisSet.setCapNum(0);
-		}
+		messBasisSet.setCapNum(saveVo.getCapNum());
 		
-		messBasisSet.setBitBuy(Integer.valueOf(params.get("bitBuy").toString()));
+		messBasisSet.setBitBuy(saveVo.getBitBuy());
 		messBasisSet.setBitUniversal(bitUniversal);
-		messBasisSet.setBitTopUp(Integer.valueOf(params.get("bitTopUp").toString()));
+		messBasisSet.setBitTopUp(saveVo.getBitTopUp());
 		if(messType.contains("0")){
-			messBasisSet.setBreakfastEnd(sdf.parse(params.get("breakfastEnd").toString()));
-			messBasisSet.setBreakfastStart(sdf.parse(params.get("breakfastStart").toString()));
-			messBasisSet.setBreakfastReserve(sdf.parse(params.get("breakfastReserve").toString()));
+			messBasisSet.setBreakfastEnd(saveVo.getBreakfastEnd());//sdf.parse()
+			messBasisSet.setBreakfastStart(saveVo.getBreakfastStart());
+			messBasisSet.setBreakfastReserve(saveVo.getBreakfastReserve());
 			if(bitUniversal == 1){
-				messBasisSet.setBreakfastPrice(Double.valueOf(params.get("breakfastPrice").toString()));
+				messBasisSet.setBreakfastPrice(saveVo.getBreakfastPrice());
 			}else{
 				messBasisSet.setBreakfastPrice(0.0);
 			}
@@ -73,11 +68,11 @@ public class MessBasisSetServiceImpl implements MessBasisSetService{
 		}
 		
 		if(messType.contains("1")){
-			messBasisSet.setLunchEnd(sdf.parse(params.get("lunchEnd").toString()));
-			messBasisSet.setLunchReserve(sdf.parse(params.get("lunchReserve").toString()));
-			messBasisSet.setLunchStart(sdf.parse(params.get("lunchStart").toString()));
+			messBasisSet.setLunchStart(saveVo.getLunchStart());
+			messBasisSet.setLunchEnd(saveVo.getLunchEnd());
+			messBasisSet.setLunchReserve(saveVo.getLunchReserve());
 			if(bitUniversal == 1){
-				messBasisSet.setLunchPrice(Double.valueOf(params.get("lunchPrice").toString()));
+				messBasisSet.setLunchPrice(saveVo.getLunchPrice());
 			}else{
 				messBasisSet.setLunchPrice(0.0);
 			}
@@ -88,11 +83,11 @@ public class MessBasisSetServiceImpl implements MessBasisSetService{
 		}
 		
 		if(messType.contains("2")){
-			messBasisSet.setDinnerEnd(sdf.parse(params.get("dinnerEnd").toString()));
-			messBasisSet.setDinnerReserve(sdf.parse(params.get("dinnerReserve").toString()));
-			messBasisSet.setDinnerStart(sdf.parse(params.get("dinnerStart").toString()));
+			messBasisSet.setDinnerStart(saveVo.getDinnerStart());
+			messBasisSet.setDinnerEnd(saveVo.getDinnerEnd());
+			messBasisSet.setDinnerReserve(saveVo.getDinnerReserve());
 			if(bitUniversal == 1){
-				messBasisSet.setDinnerPrice(Double.valueOf(params.get("dinnerPrice").toString()));
+				messBasisSet.setDinnerPrice(saveVo.getDinnerPrice());
 			}else{
 				messBasisSet.setDinnerPrice(0.0);
 			}
@@ -103,11 +98,11 @@ public class MessBasisSetServiceImpl implements MessBasisSetService{
 		}
 		
 		if(messType.contains("3")){
-			messBasisSet.setNightEnd(sdf.parse(params.get("nightEnd").toString()));
-			messBasisSet.setNightReserve(sdf.parse(params.get("nightReserve").toString()));
-			messBasisSet.setNightStart(sdf.parse(params.get("nightStart").toString()));
+			messBasisSet.setNightStart(saveVo.getNightStart());
+			messBasisSet.setNightEnd(saveVo.getNightEnd());
+			messBasisSet.setNightReserve(saveVo.getNightReserve());
 			if(bitUniversal == 1){
-				messBasisSet.setNightPrice(Double.valueOf(params.get("nightPrice").toString()));
+				messBasisSet.setNightPrice(saveVo.getNightPrice());
 			}else{
 				messBasisSet.setNightPrice(0.0);
 			}
@@ -118,16 +113,16 @@ public class MessBasisSetServiceImpl implements MessBasisSetService{
 		}
 		
 		if(bitUniversal == 0){
-			messBasisSet.setUniversalPrice(Double.valueOf(params.get("universalPrice").toString()));
+			messBasisSet.setUniversalPrice(saveVo.getUniversalPrice());
 		}else{
 			messBasisSet.setUniversalPrice(0.0);
 		}
-		messBasisSet.setMainId(Integer.valueOf(params.get("mainId").toString()));
-		messBasisSet.setName(params.get("name").toString());
-		messBasisSet.setTicketDay(Integer.valueOf(params.get("ticketDay").toString()));
-		messBasisSet.setPastDay(Integer.valueOf(params.get("pastDay").toString()));
-		messBasisSet.setBookDay(Integer.valueOf(params.get("bookDay").toString()));
-		if("save".equals(setType)){
+		messBasisSet.setMainId(saveVo.getMainId());
+		messBasisSet.setName(saveVo.getName());
+		messBasisSet.setTicketDay(saveVo.getTicketDay());
+		messBasisSet.setPastDay(saveVo.getPastDay());
+		messBasisSet.setBookDay(saveVo.getBookDay());
+		if("save".equals(saveVo.getSetType())){
 			dataType = messBasisSetMapper.insertSelective(messBasisSet);
 		}else{
 			dataType = messBasisSetMapper.updateByPrimaryKeySelective(messBasisSet);

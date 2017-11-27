@@ -45,21 +45,20 @@ public class MessAddFoodServiceImpl implements MessAddFoodService{
 
 	@Transactional
 	@Override
-	public int saveOrUpdateAddFood(Map<String, Object> params) throws Exception {
+	public int saveOrUpdateAddFood(String saveType,Integer mainId,Integer id,String comment,Double price) throws Exception {
 		// TODO Auto-generated method stub
 		int dataType = 0;
-		String setType = params.get("setType").toString();
 		MessAddFood messAddFood = null;
-		if("save".equals(setType)){
+		if("save".equals(saveType)){
 			messAddFood = new MessAddFood();	
 		}else{
-			messAddFood = messAddFoodMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
+			messAddFood = messAddFoodMapper.selectByPrimaryKey(id);
 		}
-		messAddFood.setComment(params.get("comment").toString());
-		messAddFood.setMainId(Integer.valueOf(params.get("mainId").toString()));
-		messAddFood.setPrice(Double.valueOf(params.get("price").toString()));
+		messAddFood.setComment(comment);
+		messAddFood.setMainId(mainId);
+		messAddFood.setPrice(price);
 		messAddFood.setTime(new Date());
-		if("save".equals(setType)){
+		if("save".equals(saveType)){
 			dataType = messAddFoodMapper.insertSelective(messAddFood);
 		}else{
 			dataType = messAddFoodMapper.updateByPrimaryKeySelective(messAddFood);

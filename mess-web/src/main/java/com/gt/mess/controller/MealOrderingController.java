@@ -1,6 +1,5 @@
 package com.gt.mess.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
 import com.gt.mess.dto.ResponseDTO;
@@ -9,16 +8,16 @@ import com.gt.mess.entity.MessOrderManage;
 import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.service.MessOrderManageService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +25,7 @@ import java.util.Map;
 /**
  * 订餐管理模块
  */
+@Api(description = "订餐管理模块")
 @Controller
 @RequestMapping(value = "mealOrdering")
 public class MealOrderingController {
@@ -43,7 +43,8 @@ public class MealOrderingController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/getMessOrderList")
+    @ApiOperation(value = "获取不可订餐日子",notes = "获取不可订餐日子",httpMethod = "GET")
+    @RequestMapping(value = "/getMessOrderList", method= RequestMethod.GET)
     public ResponseDTO getMessOrderList(HttpServletRequest request) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
@@ -68,14 +69,18 @@ public class MealOrderingController {
      * @param request
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 保存或更新订餐管理",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/saveOrUpdateMessOrderManage")
-    public ResponseDTO saveOrUpdateOrderManage(HttpServletRequest request, @RequestParam Map<String,Object> params) {
+    @ApiOperation(value = "保存或更新订餐管理",notes = "保存或更新订餐管理",httpMethod = "GET")
+    @RequestMapping(value = "/saveOrUpdateMessOrderManage", method = RequestMethod.GET)
+    public ResponseDTO saveOrUpdateOrderManage(HttpServletRequest request,
+                                               @ApiParam(name = "days", value = "格式如：1,2,3,4,5", required = true)
+                                               @RequestParam String days) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
             Integer mainId = messMain.getId();
+            Map<String,Object> params = new HashMap<>();
+            params.put("days", days);
             params.put("mainId", mainId);
             int data = messOrderManageService.saveOrUpdateMessOrderManage(params);
             if(data == 1)

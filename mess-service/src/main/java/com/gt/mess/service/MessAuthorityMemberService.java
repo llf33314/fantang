@@ -12,7 +12,7 @@ public interface MessAuthorityMemberService {
 
 	Page<Map<String,Object>> getMessAuthorityMemberPageByMainId(Page<Map<String, Object>> page, Integer mainId, int i);
 
-	ResponseDTO delAuthorityMember(Map<String, Object> params) throws BaseException;
+	ResponseDTO delAuthorityMember(Integer id) throws BaseException;
 
 	ResponseDTO delAuthorityMembers(Map<String, Object> params) throws BaseException;
 

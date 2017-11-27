@@ -11,10 +11,14 @@ import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessAuthorityMemberService;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.util.CommonUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -25,6 +29,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 授权模块
+ */
+@Api(description = "授权模块")
 @Controller
 @RequestMapping(value = "messAuthority")
 public class MessAuthorityController {
@@ -39,22 +47,15 @@ public class MessAuthorityController {
 	private Logger logger = Logger.getLogger(MessAuthorityController.class);
 	
 	
-	@RequestMapping("authorityIndex")
-	public String authorityIndex(HttpServletRequest request , HttpServletResponse response){
-		Object indexurl = request.getParameter("indexurl");
-		if(indexurl!=null){
-			request.setAttribute("indexurl", indexurl);
-		}
-		return "merchants/trade/mess/admin/authority/authorityIndex";
-	}
-	
+
 	/**
 	 * 授权人员管理
 	 * @param request
 	 * @param page
 	 * @return
 	 */
-	@RequestMapping(value = "/authorityManage")
+	@ApiOperation(value = "授权人员管理",notes = "授权人员管理数据获取",httpMethod = "GET")
+	@RequestMapping(value = "/authorityManage", method = RequestMethod.GET)
 	public ResponseDTO authorityManage(HttpServletRequest request,
 			Page<Map<String,Object>> page) {
 		try {
@@ -77,35 +78,41 @@ public class MessAuthorityController {
 
 	/**
 	 * 删除授权人员
-	 * @param response
-	 * @param params
+	 * @param id
 	 * @throws IOException
 	 */
-//	@SysLogAnnotation(description = "饭票删除权限信息", op_function = "4")
-	@RequestMapping("/delAuthorityMember")
-	public ResponseDTO delAuthorityMember(HttpServletResponse response,
-	@RequestParam Map<String, Object> params) throws IOException {
+	@ApiOperation(value = "删除授权人员",notes = "删除授权人员",httpMethod = "POST")
+	@RequestMapping(value = "/delAuthorityMember", method = RequestMethod.POST)
+	public ResponseDTO delAuthorityMember(@ApiParam(name = "id", value = "饭票授权表ID", required = true)
+										  @RequestParam Integer id) throws IOException {
 		try {
-			return messAuthorityMemberService.delAuthorityMember(params);
+			return messAuthorityMemberService.delAuthorityMember(id);
 		} catch (Exception e) {
 			// TODO: handle exception
 			throw new BaseException("取消授权人员失败");
 		}
 	}
-	
+
 	/**
 	 * 微饭票重置授权信息并删除、更新授权人员
 	 * @param request
-	 * @param response
-	 * @param params
+	 * @param memberId
+	 * @param mainId
+	 * @return
 	 * @throws IOException
 	 */
-//	@SysLogAnnotation(description = "微饭票重置授权信息并删除、更新授权人员", op_function = "4")
-	@RequestMapping("/delAuthorityMembers")
-	public ResponseDTO delAuthorityMembers(HttpServletRequest request,HttpServletResponse response,
-	@RequestParam Map<String, Object> params) throws IOException {
+	@ApiOperation(value = "微饭票重置授权信息并删除、更新授权人员",notes = "微饭票重置授权信息并删除、更新授权人员",httpMethod = "POST")
+	@RequestMapping(value = "/delAuthorityMembers", method = RequestMethod.POST)
+	public ResponseDTO delAuthorityMembers(HttpServletRequest request,
+										   @ApiParam(name = "memberId", value = "粉丝ID", required = true)
+										   	   @RequestParam Integer memberId,
+										   @ApiParam(name = "mainId", value = "主表ID", required = true)
+											   @RequestParam Integer mainId) throws IOException {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
+			Map<String, Object> params = new HashMap<>();
+			params.put("mainId", mainId);
+			params.put("memberId", memberId);
 			params.put("busId", busUser.getId());
 			params.put("path", CommonUtil.getURL(request));//设置二维码访问域
 			return messAuthorityMemberService.delAuthorityMembers(params);

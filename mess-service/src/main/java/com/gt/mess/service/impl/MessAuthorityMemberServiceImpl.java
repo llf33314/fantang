@@ -67,12 +67,13 @@ public class MessAuthorityMemberServiceImpl implements MessAuthorityMemberServic
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public ResponseDTO delAuthorityMember(Map<String, Object> params) throws BaseException {
+	public ResponseDTO delAuthorityMember(Integer id) throws BaseException {
 		String message = "取消失败！";
 		try {
-			if(!CommonUtil.isEmpty(params.get("id"))){
+			if(!CommonUtil.isEmpty(id)){
 				//如果有核销过的 则修改状态
-				MessAuthorityMember authority = messAuthorityMemberMapper.selectByPrimaryKey(CommonUtil.toInteger(params.get("id")));
+				MessAuthorityMember authority = messAuthorityMemberMapper.selectByPrimaryKey(id);
+				Map<String,Object> params = new HashMap<>();
 				params.put("memberId", authority.getId());
 				int count = messCancelTicketMapper.queryCancelTicketMember(params);
 				if(count>0){
@@ -80,7 +81,7 @@ public class MessAuthorityMemberServiceImpl implements MessAuthorityMemberServic
 					messAuthorityMemberMapper.updateByPrimaryKeySelective(authority);
 				}else{
 					//没有核销过  删除
-					messAuthorityMemberMapper.deleteByPrimaryKey(CommonUtil.toInteger(params.get("id")));
+					messAuthorityMemberMapper.deleteByPrimaryKey(id);
 				}
 				message = "取消成功！";
 				return ResponseDTO.createBySuccessMessage(message);

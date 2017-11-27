@@ -96,15 +96,12 @@ public class MessOldManCardServiceImpl implements MessOldManCardService{
 
 	@Transactional(rollbackFor = Exception.class)
 	@Override
-	public int addOrDelTicket(Map<String, Object> params) throws Exception {
+	public int addOrDelTicket(Integer cardId, Integer ticketNum, Integer type) throws Exception {
 		// TODO Auto-generated method stub
 		int data = 0;
 		MessOldManCardOrder messOldManCardOrder = new MessOldManCardOrder();
-		Integer cardId = Integer.valueOf(params.get("id").toString());
-		MessOldManCard messOldManCard = 
+		MessOldManCard messOldManCard =
 				messOldManCardMapper.selectByPrimaryKey(cardId);
-		Integer ticketNum = Integer.valueOf(params.get("ticketNum").toString());
-		Integer type = Integer.valueOf(params.get("type").toString());//0 扣票 1加票
 		if(type == 0){
 			if(messOldManCard.getTicketNum() >= ticketNum){
 				messOldManCard.setTicketNum(messOldManCard.getTicketNum() - ticketNum);

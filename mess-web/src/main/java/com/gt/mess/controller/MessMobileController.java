@@ -43,24 +43,6 @@ public class MessMobileController {
 
 	private Logger logger = Logger.getLogger(MessMobileController.class);
 
-//	@Autowired
-//	private MemberService  memberService;
-//
-//	@Autowired
-//	private WxPublicUsersMapper publicUsersMapper;
-//
-//	@Autowired
-//	private WxPublicUsersMapper wxPublicUsersMapper;
-
-//	@Autowired
-//	private DictService  dictService;
-//
-//	@Autowired
-//	private BusUserMapper busUserMapper;
-//
-//	@Autowired
-//	private MemberMapper memberMapper;
-
 	@Autowired
 	private MessAuthorityMemberMapper messAuthorityMemberMapper;
 

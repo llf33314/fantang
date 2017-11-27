@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.mess.entity.MessMenus;
+import com.gt.mess.vo.SaveOrUpdateMenuVo;
 
 /**
  * 菜单表
@@ -21,11 +22,11 @@ public interface MessMenusService {
 
 	/**
 	 * 保存或更新菜单
-	 * @param params
+	 * @param saveVo
 	 * @return
 	 * @throws Exception
 	 */
-	public int saveOrUpdateMenu(Map<String,Object> params) throws Exception;
+	public int saveOrUpdateMenu(SaveOrUpdateMenuVo saveVo) throws Exception;
 	
 	/**
 	 * 删除菜品

@@ -35,19 +35,19 @@ public class MessDepartmentServiceImpl implements MessDepartmentService{
 
 	@Transactional(rollbackFor=Exception.class)
 	@Override
-	public int saveOrUpdateDepartment(Map<String, Object> params) throws Exception {
+	public int saveOrUpdateDepartment(String saveType,Integer mainId,Integer id,String name) throws Exception {
 		// TODO Auto-generated method stub
 		MessDepartment messDepartment = null;
 		int data = 0;
-		if("save".equals(params.get("saveType").toString())){
+		if("save".equals(saveType)){
 			messDepartment = new MessDepartment();
 		}else{
 			messDepartment = 
-					messDepartmentMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
+					messDepartmentMapper.selectByPrimaryKey(id);
 		}
-		messDepartment.setMainId(Integer.valueOf(params.get("mainId").toString()));
-		messDepartment.setName(params.get("name").toString());
-		if("save".equals(params.get("saveType").toString())){
+		messDepartment.setMainId(mainId);
+		messDepartment.setName(name);
+		if("save".equals(saveType)){
 			data = messDepartmentMapper.insertSelective(messDepartment);
 		}else{
 			data = messDepartmentMapper.updateByPrimaryKeySelective(messDepartment);

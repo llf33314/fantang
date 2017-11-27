@@ -1,6 +1,5 @@
 package com.gt.mess.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
@@ -13,24 +12,25 @@ import com.gt.mess.service.MessBasisSetService;
 import com.gt.mess.service.MessCardService;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.service.MessRootService;
+import com.gt.mess.vo.SaveOrUpdateBasisSetVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import javax.validation.Valid;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 基础设置模块
  */
+@Api(description = "基础设置模块")
 @Controller
 @RequestMapping(value = "basisSet")
 public class BasisSetController {
@@ -56,7 +56,8 @@ public class BasisSetController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/basisSet")
+    @ApiOperation(value = "基础设置",notes = "基础设置数据获取",httpMethod = "GET")
+    @RequestMapping(value = "/basisSet", method= RequestMethod.GET)
     public ResponseDTO basisSet(HttpServletRequest request) {
         try {
             JSONObject jsonData = new JSONObject();
@@ -90,11 +91,11 @@ public class BasisSetController {
      * 保存或更新基础设置
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 保存或更新基础设置",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/saveOrUpdateBasisSet")
-    public ResponseDTO saveOrUpdateBasisSet(@RequestParam Map<String,Object> params) {
+    @ApiOperation(value = "保存或更新基础设置",notes = "保存或更新基础设置",httpMethod = "POST")
+    @RequestMapping(value = "/saveOrUpdateBasisSet", method= RequestMethod.POST)
+    public ResponseDTO saveOrUpdateBasisSet(@Valid @ModelAttribute SaveOrUpdateBasisSetVo setVo) {
         try {
-            int data = messBasisSetService.saveOrUpdateBasisSet(params);
+            int data = messBasisSetService.saveOrUpdateBasisSet(setVo);
             if(data == 1)
                 return ResponseDTO.createBySuccess();
             else
@@ -110,10 +111,11 @@ public class BasisSetController {
      * @param request
      * @return
      */
-//	@SysLogAnnotation(description="微食堂  更改票种类",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "{type}/changeTicketType")
+    @ApiOperation(value = "更改票种类",notes = "更改票种类",httpMethod = "GET")
+    @RequestMapping(value = "{type}/changeTicketType", method= RequestMethod.GET)
     public ResponseDTO changeTicketType(HttpServletRequest request,
-                                 @PathVariable("type") Integer type) {
+                                        @ApiParam(name = "type", value = "type为0时删除未使用的通用票,否则删除未使用的非通用票", required = true)
+                                        @PathVariable("type") Integer type) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
@@ -133,9 +135,10 @@ public class BasisSetController {
      * 一键清空饭卡以及未来订单
      * @return
      */
-//	@SysLogAnnotation(description="微食堂  一键清空饭卡以及未来订单",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "{mainId}/cleanTicketAndOrder")
-    public ResponseDTO cleanTicketAndOrder(@PathVariable("mainId") Integer mainId) {
+    @ApiOperation(value = "更改票种类",notes = "更改票种类",httpMethod = "GET")
+    @RequestMapping(value = "{mainId}/cleanTicketAndOrder", method= RequestMethod.GET)
+    public ResponseDTO cleanTicketAndOrder(@ApiParam(name = "mainId", value = "主表ID", required = true)
+                                               @PathVariable("mainId") Integer mainId) {
         try {
             int data = messCardService.cleanTicketAndOrder(mainId);
             if(data == 1)

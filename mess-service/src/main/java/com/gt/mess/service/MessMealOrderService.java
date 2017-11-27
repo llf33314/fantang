@@ -6,6 +6,7 @@ import java.util.Map;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.mess.exception.BaseException;
 import com.gt.mess.entity.MessMealOrder;
+import com.gt.mess.vo.SelectMealOrderVo;
 
 /**
  * 订餐记录表
@@ -34,17 +35,17 @@ public interface MessMealOrderService {
 	
 	/**
 	 * 导出订餐记录
-	 * @param mainId
+	 * @param saveVo
 	 * @return
 	 */
-	public Map<String,Object> exports(Map <String,Object> params);
+	public Map<String,Object> exports(SelectMealOrderVo saveVo);
 	
 	/**
 	 * 导出订餐记录(月总)
-	 * @param params
+	 * @param mainId
 	 * @return
 	 */
-	public Map<String,Object> exportsMealOrderForMonth(Map <String,Object> params);
+	public Map<String,Object> exportsMealOrderForMonth(Integer mainId,Integer depId);
 	
 	/**
 	 * 查询今日订餐记录(未取餐数)

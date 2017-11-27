@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.mess.dao.MessCardGroupMapper;
 import com.gt.mess.entity.MessCardGroup;
 import com.gt.mess.service.MessCardGroupService;
+import com.gt.mess.vo.SaveOrUpdateCardGroupVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,27 +32,27 @@ public class MessCardGroupServiceImpl implements MessCardGroupService{
 
 	@Transactional(rollbackFor=Exception.class)
 	@Override
-	public int saveOrUpdateCardGroup(Map<String, Object> params) throws Exception {
+	public int saveOrUpdateCardGroup(SaveOrUpdateCardGroupVo saveVo) throws Exception {
 		// TODO Auto-generated method stub
 		int data = 0;
 		MessCardGroup messCardGroup = null;
-		if("save".equals(params.get("saveType").toString())){
+		if("save".equals(saveVo.getSetType())){
 			messCardGroup = new MessCardGroup();
 		}else{
 			messCardGroup = 
-					messCardGroupMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
+					messCardGroupMapper.selectByPrimaryKey(saveVo.getId());
 		}
-		messCardGroup.setMainId(Integer.valueOf(params.get("mainId").toString()));
-		messCardGroup.setName(params.get("name").toString());
+		messCardGroup.setMainId(saveVo.getMainId());
+		messCardGroup.setName(saveVo.getName());
 		Map<String,Object> jsonMap = new HashMap<String, Object>();
-		jsonMap.put("bitUse", params.get("bitUse").toString());
-		jsonMap.put("breakfastPrice", params.get("breakfastPrice").toString());
-		jsonMap.put("lunchPrice", params.get("lunchPrice").toString());
-		jsonMap.put("dinnerPrice", params.get("dinnerPrice").toString());
-		jsonMap.put("nightPrice", params.get("nightPrice").toString());
-		jsonMap.put("universalPrice", params.get("universalPrice").toString());
+		jsonMap.put("bitUse", saveVo.getBitUse());
+		jsonMap.put("breakfastPrice", saveVo.getBreakfastPrice());
+		jsonMap.put("lunchPrice", saveVo.getLunchPrice());
+		jsonMap.put("dinnerPrice", saveVo.getDinnerPrice());
+		jsonMap.put("nightPrice", saveVo.getNightPrice());
+		jsonMap.put("universalPrice", saveVo.getUniversalPrice());
 		messCardGroup.setAuthority(JSON.toJSONString(jsonMap).toString());
-		if("save".equals(params.get("saveType").toString())){
+		if("save".equals(saveVo.getSetType())){
 			data = messCardGroupMapper.insertSelective(messCardGroup);
 		}else{
 			data = messCardGroupMapper.updateByPrimaryKeySelective(messCardGroup);

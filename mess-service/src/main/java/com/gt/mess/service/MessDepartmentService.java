@@ -23,11 +23,14 @@ public interface MessDepartmentService {
 
 	/**
 	 * 保存或更新部门
-	 * @param params
+	 * @param saveType
+	 * @param mainId
+	 * @param id
+	 * @param name
 	 * @return
 	 * @throws Exception
 	 */
-	public int saveOrUpdateDepartment(Map<String,Object> params)throws Exception;
+	public int saveOrUpdateDepartment(String saveType,Integer mainId,Integer id,String name)throws Exception;
 	
 	/**
 	 * 删除部门

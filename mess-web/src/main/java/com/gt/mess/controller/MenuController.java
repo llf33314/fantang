@@ -1,35 +1,32 @@
 package com.gt.mess.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
 import com.gt.mess.dto.ResponseDTO;
-import com.gt.mess.entity.MessBasisSet;
 import com.gt.mess.entity.MessMain;
 import com.gt.mess.entity.MessMenus;
 import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.service.MessMenusService;
+import com.gt.mess.vo.SaveOrUpdateMenuVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Date;
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 菜品管理模块
  */
+@Api(description = "菜品管理模块")
 @Controller
 @RequestMapping(value = "basisSet")
 public class MenuController {
@@ -48,9 +45,12 @@ public class MenuController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "{week}/menuManage")
+    @ApiOperation(value = "菜品管理",notes = "菜品管理数据获取",httpMethod = "GET")
+    @RequestMapping(value = "{week}/menuManage", method = RequestMethod.GET)
     public ResponseDTO menuManage(HttpServletRequest request,
-                                   Page<MessMenus> page, @PathVariable("week") Integer week) {
+                                  Page<MessMenus> page,
+                                  @ApiParam(name = "week", value = "星期几，如：星期一对应1", required = true)
+                                  @PathVariable("week") Integer week) {
         try {
             JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
@@ -77,11 +77,11 @@ public class MenuController {
      * 保存或更新菜品
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 保存或更新菜单",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/saveOrUpdateMenu")
-    public ResponseDTO saveOrUpdateMenu(@RequestParam Map <String,Object> params) {
+    @ApiOperation(value = "保存或更新菜品",notes = "保存或更新菜品",httpMethod = "POST")
+    @RequestMapping(value = "/saveOrUpdateMenu", method = RequestMethod.POST)
+    public ResponseDTO saveOrUpdateMenu(@Valid @ModelAttribute SaveOrUpdateMenuVo saveVo) {
         try {
-            int data = messMenusService.saveOrUpdateMenu(params);
+            int data = messMenusService.saveOrUpdateMenu(saveVo);
             if(data == 1)
                 return ResponseDTO.createBySuccess();
             else
@@ -96,9 +96,10 @@ public class MenuController {
      * 删除菜品
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 删除菜品",op_function="4")//保存2，修改3，删除4
-    @RequestMapping(value = "{mId}/delMenu")
-    public ResponseDTO saveOrUpdateMenus(@PathVariable("mId") Integer mId) {
+    @ApiOperation(value = "删除菜品",notes = "删除菜品",httpMethod = "GET")
+    @RequestMapping(value = "{mId}/delMenu", method = RequestMethod.GET)
+    public ResponseDTO saveOrUpdateMenus(@ApiParam(name = "mId", value = "菜品表ID", required = true)
+                                         @PathVariable("mId") Integer mId) {
         try {
             int data = messMenusService.delMenu(mId);
             if(data == 1)
@@ -113,15 +114,13 @@ public class MenuController {
 
     /**
      * 批量删除菜品
-     *
-     * @param request
-     * @param response
+     * @param mIds
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 批量删除菜品",op_function="4")//保存2，修改3，删除4
-    @RequestMapping(value = "/delMenus")
-    public ResponseDTO saveOrUpdateMenus(HttpServletRequest request, HttpServletResponse response,
-                                  @RequestParam String mIds) {
+    @ApiOperation(value = "批量删除菜品",notes = "批量删除菜品",httpMethod = "POST")
+    @RequestMapping(value = "/delMenus", method = RequestMethod.POST)
+    public ResponseDTO saveOrUpdateMenus(@ApiParam(name = "mIds", value = "菜品表ID列表，如：1,2,3,4", required = true)
+                                         @RequestParam String mIds) {
         try {
             int data = 0;
             String [] tempArr = mIds.split(",");

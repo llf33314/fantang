@@ -1,14 +1,9 @@
 package com.gt.mess.interceptors;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.gt.mess.base.BaseInterceptor;
-import com.gt.mess.util.WxmpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -60,7 +55,7 @@ public class LoginInterceptors implements Filter {
 
                 Enumeration<String> keys = session.getAttributeNames();
                 while (keys.hasMoreElements()) {
-                    String key = (String) keys.nextElement();
+                    String key = keys.nextElement();
                     log.info(key + " == " + session.getAttribute(key));
                 }
 

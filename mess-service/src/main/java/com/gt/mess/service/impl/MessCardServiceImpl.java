@@ -6,6 +6,7 @@ import com.gt.mess.entity.*;
 import com.gt.mess.service.MessCardService;
 import com.gt.mess.util.CommonUtil;
 import com.gt.mess.util.DateTimeKit;
+import com.gt.mess.vo.SaveOrUpdateMessCardVo;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -82,7 +83,7 @@ public class MessCardServiceImpl implements MessCardService {
 
 	@Transactional(rollbackFor=Exception.class)
 	@Override
-	public int saveOrUpdateMessCard(Map<String, Object> params) throws Exception {
+	public int saveOrUpdateMessCard(SaveOrUpdateMessCardVo saveVo) throws Exception {
 		// TODO Auto-generated method stub
 		int dataType = 0;
 		MessCard messCard = new MessCard();
@@ -98,7 +99,7 @@ public class MessCardServiceImpl implements MessCardService {
 		}
 		Map<String,Object> map = new HashMap<String, Object>();
 		map.put("cardCode", cardCode);
-		map.put("mainId", Integer.valueOf(params.get("mainId").toString()));
+		map.put("mainId", saveVo.getMainId());
 		if(messCardMapper.getMessCardByCardCodeAndMainId(map).size() >= 1){
 			return 0;
 		}
@@ -107,33 +108,18 @@ public class MessCardServiceImpl implements MessCardService {
 		messCard.setDinnerNum(0);
 		messCard.setFreeTicketNum(0);
 		messCard.setLunchNum(0);
-		messCard.setMainId(Integer.valueOf(params.get("mainId").toString()));
-		try {
-			messCard.setDepId(Integer.valueOf(params.get("depId").toString()));
-		} catch (Exception e) {
-			// TODO: handle exception
-			messCard.setDepId(null);
-		}
-		try {
-			messCard.setGroupId(Integer.valueOf(params.get("groupId").toString()));
-		} catch (Exception e) {
-			// TODO: handle exception
-			messCard.setGroupId(null);
-		}
+		messCard.setMainId(saveVo.getMainId());
+		messCard.setDepId(saveVo.getDepId());
+		messCard.setGroupId(saveVo.getGroupId());
 		if(messCard.getDepId() != null && messCard.getDepId() != -1){
-			messCard.setDepartment(params.get("department").toString());
+			messCard.setDepartment(saveVo.getDepartment());
 		}else{
 			messCard.setDepartment("暂无部门");
 		}
-		try {
-			messCard.setMoney(Double.valueOf(params.get("money").toString()));
-		} catch (Exception e) {
-			// TODO: handle exception
-			messCard.setMoney(0.0);
-		}
-		messCard.setName(params.get("name").toString());
+		messCard.setMoney(saveVo.getMoney());
+		messCard.setName(saveVo.getName());
 		messCard.setNightNum(0);
-		messCard.setSex(Integer.valueOf(params.get("sex").toString()));
+		messCard.setSex(saveVo.getSex());
 		messCard.setStatus(1);
 		messCard.setTicketNum(0);
 		messCard.setUniversalNum(0);
@@ -154,7 +140,7 @@ public class MessCardServiceImpl implements MessCardService {
 			messConsumerDetail.setNightNum(0);
 			messConsumerDetail.setUniversalNum(0);
 			messConsumerDetail.setStatus(0);
-			messConsumerDetail.setMoney(Double.valueOf(params.get("money").toString()));
+			messConsumerDetail.setMoney(saveVo.getMoney());
 			messConsumerDetail.setOnLine(1);
 			
 			MessTopUpOrder messTopUpOrder = new MessTopUpOrder();
@@ -164,7 +150,7 @@ public class MessCardServiceImpl implements MessCardService {
 			messTopUpOrder.setLaterMoney(messCard.getMoney());
 			messTopUpOrder.setMainId(messCard.getMainId());
 			messTopUpOrder.setMemberId(messCard.getMemberId());
-			messTopUpOrder.setMoney(Double.valueOf(params.get("money").toString()));
+			messTopUpOrder.setMoney(saveVo.getMoney());
 			messTopUpOrder.setName(messCard.getName());
 			messTopUpOrder.setOrderNo("ST"+System.currentTimeMillis());
 			messTopUpOrder.setSex(messCard.getSex());
@@ -180,11 +166,11 @@ public class MessCardServiceImpl implements MessCardService {
 
 	@Transactional(rollbackFor=Exception.class)
 	@Override
-	public int topUpMoney(Map<String, Object> params) throws Exception {
+	public int topUpMoney(Integer cardId,Double money) throws Exception {
 		// TODO Auto-generated method stub
-		MessCard messCard = messCardMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
-		if (messCard.getCardCode().equals(params.get("cardCode").toString())) {
-			messCard.setMoney(messCard.getMoney() + Double.valueOf(params.get("money").toString()));
+		MessCard messCard = messCardMapper.selectByPrimaryKey(cardId);
+		if (null != messCard) {
+			messCard.setMoney(messCard.getMoney() + Double.valueOf(money));
 			
 			//消费流水表
 			MessConsumerDetail messConsumerDetail = new MessConsumerDetail();
@@ -199,7 +185,7 @@ public class MessCardServiceImpl implements MessCardService {
 			messConsumerDetail.setNightNum(0);
 			messConsumerDetail.setUniversalNum(0);
 			messConsumerDetail.setStatus(0);
-			messConsumerDetail.setMoney(Double.valueOf(params.get("money").toString()));
+			messConsumerDetail.setMoney(money);
 			messConsumerDetail.setOnLine(1);
 			
 			MessTopUpOrder messTopUpOrder = new MessTopUpOrder();
@@ -209,7 +195,7 @@ public class MessCardServiceImpl implements MessCardService {
 			messTopUpOrder.setLaterMoney(messCard.getMoney());
 			messTopUpOrder.setMainId(messCard.getMainId());
 			messTopUpOrder.setMemberId(messCard.getMemberId());
-			messTopUpOrder.setMoney(Double.valueOf(params.get("money").toString()));
+			messTopUpOrder.setMoney(money);
 			messTopUpOrder.setName(messCard.getName());
 			messTopUpOrder.setOrderNo("ST"+System.currentTimeMillis());
 			messTopUpOrder.setSex(messCard.getSex());
@@ -225,15 +211,13 @@ public class MessCardServiceImpl implements MessCardService {
 
 	@Transactional(rollbackFor=Exception.class)
 	@Override
-	public int buyTicket(Map<String, Object> params) throws Exception {
+	public int buyTicket(Integer cardId,Double dMoney,Integer messType,Integer ticketNum) throws Exception {
 		// TODO Auto-generated method stub
-		MessCard messCard = messCardMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
+		MessCard messCard = messCardMapper.selectByPrimaryKey(cardId);
 		MessBasisSet messBasisSet = messBasisSetMapper.getMessBasisSetByMainId(messCard.getMainId());
-		if (messCard.getCardCode().equals(params.get("cardCode").toString())) {
-			Double money = messCard.getMoney() - Double.valueOf(params.get("money").toString());
+		if (null != messCard) {
+			Double money = messCard.getMoney() - dMoney;
 			if (money >= 0) {
-				Integer messType = Integer.valueOf(params.get("messType").toString());
-				Integer ticketNum = Integer.valueOf(params.get("ticketNum").toString());
 				messCard.setMoney(money);
 				messCard.setTicketNum(messCard.getTicketNum() + ticketNum);
 				//消费流水表
@@ -284,7 +268,7 @@ public class MessCardServiceImpl implements MessCardService {
 				messBuyTicketOrder.setDepartment(messCard.getDepartment());
 				messBuyTicketOrder.setMemberId(messCard.getMemberId());
 				messBuyTicketOrder.setMainId(messCard.getMainId());
-				messBuyTicketOrder.setMoney(Double.valueOf(params.get("money").toString()));
+				messBuyTicketOrder.setMoney(dMoney);
 				messBuyTicketOrder.setName(messCard.getName());
 				messBuyTicketOrder.setOrderNo("ST" + System.currentTimeMillis());
 				messBuyTicketOrder.setSex(messCard.getSex());
@@ -325,13 +309,12 @@ public class MessCardServiceImpl implements MessCardService {
 	}
 
 	@Override
-	public int subsidyTicket(Map<String, Object> params) throws Exception {
+	public int subsidyTicket(Integer cardId,Integer messType,Integer ticketNum) throws Exception {
 		// TODO Auto-generated method stub
-		MessCard messCard = messCardMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
+		MessCard messCard = messCardMapper.selectByPrimaryKey(cardId);
 		MessBasisSet messBasisSet = messBasisSetMapper.getMessBasisSetByMainId(messCard.getMainId());
-		if (messCard != null) {
-			Integer messType = Integer.valueOf(params.get("messType").toString());
-			Integer freeTicketNum = Integer.valueOf(params.get("ticketNum").toString());
+		if (null != messCard) {
+			Integer freeTicketNum = ticketNum;
 			messCard.setFreeTicketNum(messCard.getFreeTicketNum()+freeTicketNum);
 			//消费流水表
 			MessConsumerDetail messConsumerDetail = new MessConsumerDetail();
@@ -789,9 +772,9 @@ public class MessCardServiceImpl implements MessCardService {
 	public int changeTicketType(Integer mainId,Integer type) throws Exception {
 		// TODO Auto-generated method stub
 		if(type == 0){
-			messCardTicketMapper.delNotCancelU(mainId);
+			messCardTicketMapper.delNotCancelU(mainId);//删除未使用的通用票
 		}else{
-			messCardTicketMapper.delNotCancelD(mainId);
+			messCardTicketMapper.delNotCancelD(mainId);//删除未使用的非通用票
 		}
 		return messCardMapper.cleanTicketNum(mainId);
 	}
@@ -1387,15 +1370,15 @@ public class MessCardServiceImpl implements MessCardService {
 
 	@Transactional(rollbackFor=Exception.class)
 	@Override
-	public int changeDep(Map<String,Object> params) throws Exception {
+	public int changeDep(Integer cardId, Integer depId, String department) throws Exception {
 		// TODO Auto-generated method stub
 		MessCard messCard = 
-				messCardMapper.selectByPrimaryKey(Integer.valueOf(params.get("cardId").toString()));
-		messCard.setDepId(Integer.valueOf(params.get("depId").toString()));
+				messCardMapper.selectByPrimaryKey(cardId);
+		messCard.setDepId(depId);
 		if(messCard.getDepId() == -1){
 			messCard.setDepartment("暂无部门");
 		}else{
-			messCard.setDepartment(params.get("department").toString());
+			messCard.setDepartment(department);
 		}
 		return messCardMapper.updateByPrimaryKeySelective(messCard);
 	}
@@ -1413,14 +1396,14 @@ public class MessCardServiceImpl implements MessCardService {
 
 	@Transactional(rollbackFor=Exception.class)
 	@Override
-	public int deductTicket(Map<String, Object> params) throws Exception {
+	public int deductTicket(Integer cardId,Integer messType,Integer ticketNum) throws Exception {
 		// TODO Auto-generated method stub
 		int data = 0;
 		MessCard messCard = 
-				messCardMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
-		Integer nums = Integer.valueOf(params.get("ticketNum").toString());
+				messCardMapper.selectByPrimaryKey(cardId);
+		Integer nums = ticketNum;
 		Integer tempNums = 0;
-		Integer ticketType = Integer.valueOf(params.get("ticketType").toString());
+		Integer ticketType = messType;
 		if(messCard.getFreeTicketNum() >= nums){
 			if(ticketType == 0){//早餐
 				if(messCard.getBreakfastNum() < nums)
@@ -1489,14 +1472,13 @@ public class MessCardServiceImpl implements MessCardService {
 
 	@Transactional(rollbackFor=Exception.class)
 	@Override
-	public int cancelTicket(Map<String, Object> params) throws Exception {
+	public int cancelTicket(Integer id,Integer ticketNum,Integer ticketType) throws Exception {
 		// TODO Auto-generated method stub
 		int data = 0;
 		MessCard messCard = 
-				messCardMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
-		Integer nums = Integer.valueOf(params.get("ticketNum").toString());
+				messCardMapper.selectByPrimaryKey(id);
+		Integer nums = ticketNum;
 		Integer tempNums = 0;
-		Integer ticketType = Integer.valueOf(params.get("ticketType").toString());
 		Integer cardTicketNum = messCard.getFreeTicketNum() + messCard.getTicketNum();
 		if(cardTicketNum >= nums){
 			if(ticketType == 0){//早餐
@@ -1785,11 +1767,10 @@ public class MessCardServiceImpl implements MessCardService {
 
 	@Transactional(rollbackFor=Exception.class)
 	@Override
-	public int changeGroup(Map<String, Object> params) throws Exception {
+	public int changeGroup(Integer cardId,Integer groupId) throws Exception {
 		// TODO Auto-generated method stub
 		MessCard messCard = 
-				messCardMapper.selectByPrimaryKey(Integer.valueOf(params.get("cardId").toString()));
-		Integer groupId = Integer.valueOf(params.get("groupId").toString());
+				messCardMapper.selectByPrimaryKey(cardId);
 		if(groupId.equals(-1)){
 			messCard.setGroupId(null);
 		}else{

@@ -5,6 +5,7 @@ import com.gt.mess.dao.MessMenusMapper;
 import com.gt.mess.entity.MessMenus;
 import com.gt.mess.properties.FtpProperties;
 import com.gt.mess.service.MessMenusService;
+import com.gt.mess.vo.SaveOrUpdateMenuVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,27 +37,26 @@ public class MessMenusServiceImpl implements MessMenusService{
 
 	@Transactional
 	@Override
-	public int saveOrUpdateMenu(Map<String, Object> params) throws Exception {
+	public int saveOrUpdateMenu(SaveOrUpdateMenuVo saveVo) throws Exception {
 		// TODO Auto-generated method stub
 		int dataType = 0;
-		String setType = params.get("setType").toString();
 		MessMenus messMenus = null;
-		if("save".equals(setType)){
+		if("save".equals(saveVo.getSetType())){
 			messMenus = new MessMenus();	
 		}else{
-			messMenus = messMenusMapper.selectByPrimaryKey(Integer.valueOf(params.get("id").toString()));
+			messMenus = messMenusMapper.selectByPrimaryKey(saveVo.getId());
 		}
 		
-		messMenus.setComment(params.get("comment").toString());
-		messMenus.setImages(params.get("images").toString().replace(ftpProperties.getImageAccess(), ""));
-		messMenus.setMainId(Integer.valueOf(params.get("mainId").toString()));
-		messMenus.setName(params.get("name").toString());
+		messMenus.setComment(saveVo.getComment());
+		messMenus.setImages(saveVo.getImages().replace(ftpProperties.getImageAccess(), ""));
+		messMenus.setMainId(saveVo.getMainId());
+		messMenus.setName(saveVo.getName());
 		messMenus.setPrice(0.0);
-		messMenus.setSort(Integer.valueOf(params.get("sort").toString()));
-		messMenus.setType(Integer.valueOf(params.get("type").toString()));
-		messMenus.setWeek(Integer.valueOf(params.get("week").toString()));
+		messMenus.setSort(saveVo.getSort());
+		messMenus.setType(saveVo.getType());
+		messMenus.setWeek(saveVo.getWeek());
 		
-		if("save".equals(setType)){
+		if("save".equals(saveVo.getSetType())){
 			dataType = messMenusMapper.insertSelective(messMenus);
 		}else{
 			dataType = messMenusMapper.updateByPrimaryKeySelective(messMenus);

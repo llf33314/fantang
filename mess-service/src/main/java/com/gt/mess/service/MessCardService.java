@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.mess.entity.MessBasisSet;
 import com.gt.mess.entity.MessCard;
 import com.gt.mess.entity.MessCardTicket;
+import com.gt.mess.vo.SaveOrUpdateMessCardVo;
 
 /**
  * 饭卡表
@@ -32,50 +33,60 @@ public interface MessCardService {
 	
 	/**
 	 * 保存或更新饭卡
-	 * @param params
+	 * @param saveVo
 	 * @return
 	 */
-	public int saveOrUpdateMessCard(Map<String,Object> params) throws Exception;
-	
+	public int saveOrUpdateMessCard(SaveOrUpdateMessCardVo saveVo) throws Exception;
+
 	/**
 	 * 余额充值
-	 * @param params
+	 * @param cardId
+	 * @param money
 	 * @return
 	 * @throws Exception
 	 */
-	public int topUpMoney(Map<String,Object> params) throws Exception;
-	
+	public int topUpMoney(Integer cardId,Double money) throws Exception;
+
 	/**
 	 * 饭票购买
-	 * @param params
+	 * @param cardId
+	 * @param dMoney
+	 * @param messType
+	 * @param ticketNum
 	 * @return
 	 * @throws Exception
 	 */
-	public int buyTicket(Map<String,Object> params) throws Exception;
-	
+	public int buyTicket(Integer cardId,Double dMoney,Integer messType,Integer ticketNum) throws Exception;
+
 	/**
 	 * 补助
-	 * @param params
+	 * @param cardId
+	 * @param messType
+	 * @param ticketNum
 	 * @return
 	 * @throws Exception
 	 */
-	public int subsidyTicket(Map<String,Object> params) throws Exception;
-	
+	public int subsidyTicket(Integer cardId,Integer messType,Integer ticketNum) throws Exception;
+
 	/**
 	 * 扣除饭票（只限免费）
-	 * @param params
+	 * @param cardId
+	 * @param messType
+	 * @param ticketNum
 	 * @return
 	 * @throws Exception
 	 */
-	public int deductTicket(Map<String,Object> params) throws Exception;
-	
+	public int deductTicket(Integer cardId,Integer messType,Integer ticketNum) throws Exception;
+
 	/**
 	 * 核销饭票（手动核销）
-	 * @param params
+	 * @param id
+	 * @param ticketNum
+	 * @param ticketType
 	 * @return
 	 * @throws Exception
 	 */
-	public int cancelTicket(Map<String,Object> params) throws Exception;
+	public int cancelTicket(Integer id,Integer ticketNum,Integer ticketType) throws Exception;
 	
 	/**
 	 * 删除饭卡
@@ -140,15 +151,16 @@ public interface MessCardService {
 	 * @return
 	 */
 	public List<MessCardTicket> getMessCardTicketListByCardId(Integer cardId);
-	
+
 	/**
 	 * 修改部门
 	 * @param cardId
 	 * @param depId
+	 * @param department
 	 * @return
 	 * @throws Exception
 	 */
-	public int changeDep(Map<String,Object> params)throws Exception;
+	public int changeDep(Integer cardId, Integer depId, String department)throws Exception;
 	
 	/**
 	 * 修改饭卡组
@@ -156,7 +168,7 @@ public interface MessCardService {
 	 * @return
 	 * @throws Exception
 	 */
-	public int changeGroup(Map<String,Object> params)throws Exception;
+	public int changeGroup(Integer cardId,Integer groupId)throws Exception;
 	
 	/**
 	 * 获取当前部门有多少饭卡

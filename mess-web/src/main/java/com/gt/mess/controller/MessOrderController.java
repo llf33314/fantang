@@ -12,18 +12,26 @@ import com.gt.mess.service.MessBuyTicketOrderService;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.service.MessMealOrderService;
 import com.gt.mess.service.MessTopUpOrderService;
+import com.gt.mess.vo.SelectBuyTicketVo;
+import com.gt.mess.vo.SelectMainIdDepIdCardCodeVo;
+import com.gt.mess.vo.SelectMealOrderVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +40,7 @@ import java.util.Map;
  * @author ZengWenXiang
  * @QQ 307848200
  */
+@Api(description = "食堂后台（订单）")
 @Controller
 @RequestMapping(value = "messOrder")
 public class MessOrderController {
@@ -99,7 +108,8 @@ public class MessOrderController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/mealOrder")
+	@ApiOperation(value = "订餐记录",notes = "订餐记录数据获取",httpMethod = "GET")
+	@RequestMapping(value = "/mealOrder", method= RequestMethod.GET)
 	public ResponseDTO mealOrder(HttpServletRequest request,
 			Page<MessMealOrder> page) {
 		try {
@@ -167,16 +177,18 @@ public class MessOrderController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/selectMealOrder")
+	@ApiOperation(value = "订餐记录（根据条件搜索）",notes = "订餐记录（根据条件搜索）",httpMethod = "POST")
+	@RequestMapping(value = "/selectMealOrder", method= RequestMethod.POST)
 	public ResponseDTO selectMealOrder(HttpServletRequest request,
-			Page<MessMealOrder> page,@RequestParam Map <String,Object> params) {
+									   Page<MessMealOrder> page,@Valid @ModelAttribute SelectMealOrderVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			params.put("mainId", mainId);
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			Page<MessMealOrder> messMealOrders =
 					messMealOrderService.selectMealOrder(page, params, 10);
 
@@ -236,12 +248,20 @@ public class MessOrderController {
 	/**
 	 * 导出订餐记录
 	 * @param response
-	 * @param params
+	 * @param saveVo
 	 */
-	@RequestMapping(value = "/exportsMealOrder")
-	public void exportsMealOrder(HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	@ApiOperation(value = "订餐记录（根据条件搜索）",notes = "订餐记录（根据条件搜索）",httpMethod = "POST")
+	@RequestMapping(value = "/exportsMealOrder", method= RequestMethod.POST)
+	public void exportsMealOrder(HttpServletRequest request,HttpServletResponse response,
+								 @Valid @ModelAttribute SelectMealOrderVo saveVo) {
 		try {
-			Map<String, Object> msg = messMealOrderService.exports(params);
+			BusUser busUser = SessionUtils.getLoginUser(request);
+			MessMain messMain =
+					messMainService.getMessMainByBusId(busUser.getId());
+			Integer mainId = messMain.getId();
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
+			Map<String, Object> msg = messMealOrderService.exports(saveVo);
 			if ((boolean) msg.get("result")) {
 				Workbook wb = (Workbook) msg.get("book");
 				String filename = msg.get("fileName").toString()+".xls";
@@ -266,12 +286,17 @@ public class MessOrderController {
 	/**
 	 * 导出订餐记录(月总)
 	 * @param response
-	 * @param params
+	 * @param mainId
 	 */
-	@RequestMapping(value = "/exportsMealOrderForMonth")
-	public void exportsMealOrderForMonth(HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	@ApiOperation(value = "导出订餐记录(月总)",notes = "导出订餐记录(月总)",httpMethod = "POST")
+	@RequestMapping(value = "/exportsMealOrderForMonth", method= RequestMethod.POST)
+	public void exportsMealOrderForMonth(HttpServletResponse response,
+										 @ApiParam(name = "mainId", value = "主表ID", required = true)
+										 @RequestParam Integer mainId,
+										 @ApiParam(name = "depId", value = "部门ID")
+										 Integer depId) {
 		try {
-			Map<String, Object> msg = messMealOrderService.exportsMealOrderForMonth(params);
+			Map<String, Object> msg = messMealOrderService.exportsMealOrderForMonth(mainId,depId);
 			if ((boolean) msg.get("result")) {
 				Workbook wb = (Workbook) msg.get("book");
 				String filename = msg.get("fileName").toString()+".xls";
@@ -298,7 +323,8 @@ public class MessOrderController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/buyTicketStatistics")
+	@ApiOperation(value = "购票统计",notes = "购票统计",httpMethod = "GET")
+	@RequestMapping(value = "/buyTicketStatistics", method= RequestMethod.GET)
 	public ResponseDTO buyTicketStatistics(HttpServletRequest request,
 			Page<MessBuyTicketOrder> page) {
 		try {
@@ -328,16 +354,19 @@ public class MessOrderController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/selectBuyTicketStatistics")
+	@ApiOperation(value = "购票统计(根据条件查询)",notes = "购票统计(根据条件查询)",httpMethod = "POST")
+	@RequestMapping(value = "/selectBuyTicketStatistics", method= RequestMethod.POST)
 	public ResponseDTO selectBuyTicketStatistics(HttpServletRequest request,
-			Page<MessBuyTicketOrder> page,@RequestParam Map <String,Object> params) {
+												 Page<MessBuyTicketOrder> page,
+												 @Valid @ModelAttribute SelectBuyTicketVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			params.put("mainId", mainId);
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			Page<MessBuyTicketOrder> messBuyTicketOrders =
 					messBuyTicketOrderService.selectBuyTicketStatistics(page, params, 10);
 			List<MessDepartment> messDepartments =
@@ -358,11 +387,19 @@ public class MessOrderController {
 	/**
 	 * 导出购票记录
 	 * @param response
-	 * @param params
+	 * @param saveVo
 	 */
-	@RequestMapping(value = "/exportsBuyTicket")
-	public void exportsBuyTicket(HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	@ApiOperation(value = "导出购票记录",notes = "导出购票记录",httpMethod = "POST")
+	@RequestMapping(value = "/exportsBuyTicket", method= RequestMethod.POST)
+	public void exportsBuyTicket(HttpServletRequest request,HttpServletResponse response,
+								 @Valid @ModelAttribute SelectBuyTicketVo saveVo) {
 		try {
+			BusUser busUser = SessionUtils.getLoginUser(request);
+			MessMain messMain =
+					messMainService.getMessMainByBusId(busUser.getId());
+			Integer mainId = messMain.getId();
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			Map<String, Object> msg = messBuyTicketOrderService.exports(params);
 			if ((boolean) msg.get("result")) {
 				Workbook wb = (Workbook) msg.get("book");
@@ -390,7 +427,8 @@ public class MessOrderController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/subsidyTicket")
+	@ApiOperation(value = "商家补助",notes = "商家补助",httpMethod = "GET")
+	@RequestMapping(value = "/subsidyTicket", method= RequestMethod.GET)
 	public ResponseDTO subsidyTicket(HttpServletRequest request,
 			Page<MessBuyTicketOrder> page) {
 		try {
@@ -418,19 +456,21 @@ public class MessOrderController {
 	/**
 	 * 商家补助(根据条件查询)
 	 * @param request
-	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = "/selectSubsidyTicket")
+	@ApiOperation(value = "商家补助(根据条件查询)",notes = "商家补助(根据条件查询)",httpMethod = "POST")
+	@RequestMapping(value = "/selectSubsidyTicket", method= RequestMethod.POST)
 	public ResponseDTO selectSubsidyTicket(HttpServletRequest request,
-			Page<MessBuyTicketOrder> page,@RequestParam Map <String,Object> params) {
+			Page<MessBuyTicketOrder> page,@Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			params.put("mainId", mainId);
+			Map<String,Object> params = new HashMap<>();
+			saveVo.setMainId(mainId);
+			params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			Page<MessBuyTicketOrder> messBuyTicketOrders =
 					messBuyTicketOrderService.selectSubsidyTicket(page, params, 10);
 			List<MessDepartment> messDepartments =
@@ -451,11 +491,19 @@ public class MessOrderController {
 	/**
 	 * 导出补助记录
 	 * @param response
-	 * @param params
+	 * @param saveVo
 	 */
-	@RequestMapping(value = "/exportsSubsidyTicket")
-	public void exportsSubsidyTicket(HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	@ApiOperation(value = "导出补助记录",notes = "导出补助记录",httpMethod = "POST")
+	@RequestMapping(value = "/exportsSubsidyTicket", method= RequestMethod.POST)
+	public void exportsSubsidyTicket(HttpServletResponse response,HttpServletRequest request,
+									 @Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
+			BusUser busUser = SessionUtils.getLoginUser(request);
+			MessMain messMain =
+					messMainService.getMessMainByBusId(busUser.getId());
+			Integer mainId = messMain.getId();
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			Map<String, Object> msg = messBuyTicketOrderService.exportsSubsidyTicket(params);
 			if ((boolean) msg.get("result")) {
 				Workbook wb = (Workbook) msg.get("book");
@@ -483,7 +531,8 @@ public class MessOrderController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/topUpOrder")
+	@ApiOperation(value = "充值记录",notes = "充值记录",httpMethod = "GET")
+	@RequestMapping(value = "/topUpOrder", method= RequestMethod.GET)
 	public ResponseDTO topUpOrder(HttpServletRequest request,
 			Page<MessTopUpOrder> page) {
 		try {
@@ -513,16 +562,18 @@ public class MessOrderController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/selectTopUpOrder")
+	@ApiOperation(value = "充值记录(根据条件查询)",notes = "充值记录(根据条件查询)",httpMethod = "POST")
+	@RequestMapping(value = "/selectTopUpOrder", method= RequestMethod.POST)
 	public ResponseDTO selectTopUpOrder(HttpServletRequest request,
-			Page<MessTopUpOrder> page,@RequestParam Map <String,Object> params) {
+			Page<MessTopUpOrder> page, @Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			params.put("mainId", mainId);
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			Page<MessTopUpOrder> messTopUpOrders =
 					messTopUpOrderService.selectTopUpOrder(page, params, 10);
 			List<MessDepartment> messDepartments =
@@ -543,11 +594,18 @@ public class MessOrderController {
 	/**
 	 * 导出充值记录
 	 * @param response
-	 * @param params
+	 * @param saveVo
 	 */
 	@RequestMapping(value = "/exportsTopUpOrder")
-	public void exportsTopUpOrder(HttpServletResponse response,@RequestParam Map <String,Object> params) {
+	public void exportsTopUpOrder(HttpServletRequest request,HttpServletResponse response,
+								  @Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
+			BusUser busUser = SessionUtils.getLoginUser(request);
+			MessMain messMain =
+					messMainService.getMessMainByBusId(busUser.getId());
+			Integer mainId = messMain.getId();
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			Map<String, Object> msg = messTopUpOrderService.exports(params);
 			if ((boolean) msg.get("result")) {
 				Workbook wb = (Workbook) msg.get("book");

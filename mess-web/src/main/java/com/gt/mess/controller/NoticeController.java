@@ -1,35 +1,32 @@
 package com.gt.mess.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
 import com.gt.mess.dto.ResponseDTO;
-import com.gt.mess.entity.MessBasisSet;
 import com.gt.mess.entity.MessMain;
 import com.gt.mess.entity.MessNotice;
 import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.service.MessNoticeService;
+import com.gt.mess.vo.SaveOrUpdateNoticeVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Date;
-import java.util.HashMap;
+import javax.validation.Valid;
 import java.util.Map;
 
 /**
  * 公告管理模块
  */
+@Api(description = "公告管理模块")
 @Controller
 @RequestMapping(value = "notice")
 public class NoticeController {
@@ -48,7 +45,8 @@ public class NoticeController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/noticeManage")
+    @ApiOperation(value = "公告管理",notes = "公告管理数据获取",httpMethod = "GET")
+    @RequestMapping(value = "/noticeManage", method = RequestMethod.GET)
     public ResponseDTO noticeManage(HttpServletRequest request,
                                      Page<MessNotice> page) {
         try {
@@ -77,15 +75,18 @@ public class NoticeController {
 
     /**
      * 保存或更新公告
-     * @param request
-     * @param response
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 保存或更新公告",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/saveOrUpdateNotice")
-    public ResponseDTO saveOrUpdateNotice(HttpServletRequest request, HttpServletResponse response,
-                                   @RequestParam Map<String,Object> params) {
+    @ApiOperation(value = "保存或更新公告",notes = "保存或更新公告",httpMethod = "POST")
+    @RequestMapping(value = "/saveOrUpdateNotice", method = RequestMethod.POST)
+    public ResponseDTO saveOrUpdateNotice(HttpServletRequest request,@Valid @ModelAttribute SaveOrUpdateNoticeVo saveVo) {
         try {
+            BusUser busUser = SessionUtils.getLoginUser(request);
+            MessMain messMain =
+                    messMainService.getMessMainByBusId(busUser.getId());
+            Integer mainId= messMain.getId();
+            saveVo.setMainId(mainId);
+            Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
             int data = messNoticeService.saveOrUpdateNotice(params);
             if(data == 1)
                 return ResponseDTO.createBySuccess();
@@ -101,9 +102,10 @@ public class NoticeController {
      * 删除公告
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 删除公告",op_function="4")//保存2，修改3，删除4
-    @RequestMapping(value = "{nId}/delNotice")
-    public ResponseDTO delNotice(@PathVariable("nId") Integer nId) {
+    @ApiOperation(value = "删除公告",notes = "删除公告",httpMethod = "GET")
+    @RequestMapping(value = "{nId}/delNotice", method = RequestMethod.GET)
+    public ResponseDTO delNotice(@ApiParam(name = "nId", value = "公告表ID")
+                                 @PathVariable("nId") Integer nId) {
         try {
             int data = messNoticeService.delNotice(nId);
             if(data == 1)

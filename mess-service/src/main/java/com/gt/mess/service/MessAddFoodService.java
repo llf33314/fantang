@@ -21,11 +21,15 @@ public interface MessAddFoodService {
 
 	/**
 	 * 保存或更新加菜表
-	 * @param params
+	 * @param saveType
+	 * @param mainId
+	 * @param id
+	 * @param comment
+	 * @param price
 	 * @return
 	 * @throws Exception
 	 */
-	public int saveOrUpdateAddFood(Map<String,Object> params) throws Exception;
+	public int saveOrUpdateAddFood(String saveType,Integer mainId,Integer id,String comment,Double price) throws Exception;
 	
 	/**
 	 * 根据ID删除加菜价格

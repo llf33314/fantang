@@ -1,6 +1,5 @@
 package com.gt.mess.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
@@ -12,23 +11,24 @@ import com.gt.mess.properties.WxmpApiProperties;
 import com.gt.mess.service.MessAddFoodService;
 import com.gt.mess.service.MessMainService;
 import com.gt.mess.util.QRcodeKit;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 加菜管理模块
  */
+@Api(description = "加菜管理模块")
 @Controller
 @RequestMapping(value = "addFood")
 public class AddFoodController {
@@ -47,17 +47,15 @@ public class AddFoodController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/addFoodManage")
+    @ApiOperation(value = "加菜列表",notes = "加菜列表数据获取",httpMethod = "GET")
+    @RequestMapping(value = "/addFoodManage", method= RequestMethod.GET)
     public ResponseDTO addFoodManage(HttpServletRequest request, Page<MessAddFood> page) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
                     messMainService.getMessMainByBusId(busUser.getId());
-            Integer mainId = messMain.getId();
             Page<MessAddFood> messAddFoods =
-                    messAddFoodService.getMessAddFoodPageByMainId(page, mainId, 10);
-//            mv.addObject("messAddFoods", messAddFoods);
-//            mv.addObject("mainId", mainId);
+                    messAddFoodService.getMessAddFoodPageByMainId(page, messMain.getId(), 10);
             return ResponseDTO.createBySuccess(messAddFoods.getRecords());
         } catch (Exception e) {
             // TODO: handle exception
@@ -67,18 +65,22 @@ public class AddFoodController {
 
     /**
      * 保存或更新加菜表
-     *
-     * @param request
-     * @param response
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 保存或更新加菜表",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/saveOrUpdateAddFood")
-    public ResponseDTO saveOrUpdateAddFood(HttpServletRequest request, HttpServletResponse response,
-                                    @RequestParam Map<String,Object> params) {
-        int data = 0;
+    @ApiOperation(value = "保存或更新加菜表",notes = "保存或更新加菜表",httpMethod = "POST")
+    @RequestMapping(value = "/saveOrUpdateAddFood", method= RequestMethod.POST)
+    public ResponseDTO saveOrUpdateAddFood(@ApiParam(name = "saveType", value = "save:为保存，否则为更新", required = true)
+                                               @RequestParam String saveType,
+                                           @ApiParam(name = "mainId", value = "主表ID", required = true)
+                                               @RequestParam Integer mainId,
+                                           @ApiParam(name = "id", value = "加菜表ID")
+                                                       Integer id,
+                                           @ApiParam(name = "comment", value = "备注", required = true)
+                                               @RequestParam String comment,
+                                           @ApiParam(name = "price", value = "金额", required = true)
+                                               @RequestParam Double price) {
         try {
-            data = messAddFoodService.saveOrUpdateAddFood(params);
+            int data = messAddFoodService.saveOrUpdateAddFood(saveType,mainId,id,comment,price);
             if(data == 1)
                 return ResponseDTO.createBySuccess();
             else
@@ -93,9 +95,10 @@ public class AddFoodController {
      * 删除加菜表
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 删除加菜表",op_function="4")//保存2，修改3，删除4
-    @RequestMapping(value = "{afId}/delAddFood")
-    public ResponseDTO delAddFood(@PathVariable("afId") Integer afId) {
+    @ApiOperation(value = "删除加菜表",notes = "删除加菜表",httpMethod = "POST")
+    @RequestMapping(value = "/delAddFood", method= RequestMethod.POST)
+    public ResponseDTO delAddFood(@ApiParam(name = "afId", value = "加菜表数据ID", required = true)
+                                      @RequestParam("afId") Integer afId) {
         try {
             int data = messAddFoodService.delAddFood(afId);
             if(data == 1)
@@ -110,17 +113,13 @@ public class AddFoodController {
 
     /**
      * 批量删除加菜表
-     *
-     * @param request
-     * @param response
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 批量删除加菜表",op_function="4")//保存2，修改3，删除4
-    @RequestMapping(value = "delAddFoods")
-    public ResponseDTO delAddFoods(HttpServletRequest request, HttpServletResponse response,
-                            @RequestParam String afIds) {
-        int data = 0;
+    @ApiOperation(value = "批量删除加菜表",notes = "批量删除加菜表",httpMethod = "POST")
+    @RequestMapping(value = "delAddFoods", method= RequestMethod.POST)
+    public ResponseDTO delAddFoods(@ApiParam(name = "afIds", value = "加菜表数据ID，格式：1,2,3,4", required = true)@RequestParam String afIds) {
         try {
+            int data = 0;
             String [] tempArr = afIds.split(",");
             for(String afId : tempArr){
                 data = messAddFoodService.delAddFood(Integer.valueOf(afId));
@@ -137,14 +136,15 @@ public class AddFoodController {
 
     /**
      * 加菜码
-     * @param request
      * @param response
      */
-    @RequestMapping(value = "{mainId}/{fdId}/79B4DE7C/addFoodQRcode")
-    public void addFoodQRcode(HttpServletRequest request, HttpServletResponse response,
-                              @PathVariable Integer mainId, @PathVariable Integer fdId) {
+    @ApiOperation(value = "加菜码",notes = "加菜二维码获取",httpMethod = "GET")
+    @RequestMapping(value = "{mainId}/{afId}/79B4DE7C/addFoodQRcode", method= RequestMethod.GET)
+    public void addFoodQRcode(HttpServletResponse response,
+                              @ApiParam(name = "mainId", value = "主表ID", required = true) @PathVariable Integer mainId,
+                              @ApiParam(name = "afId", value = "加菜表数据ID", required = true) @PathVariable Integer afId) {
         try {
-            QRcodeKit.buildQRcode(wxmpApiProperties.getAdminUrl()+"messMobile/"+mainId+"/"+fdId+"/79B4DE7C/addFood.do", 300, 300, response);
+            QRcodeKit.buildQRcode(wxmpApiProperties.getAdminUrl()+"messMobile/"+mainId+"/"+afId+"/79B4DE7C/addFood.do", 300, 300, response);
         } catch (Exception e) {
             e.printStackTrace();
         }

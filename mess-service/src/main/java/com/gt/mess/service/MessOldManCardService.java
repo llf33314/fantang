@@ -40,11 +40,13 @@ public interface MessOldManCardService {
 
 	/**
 	 * 老人卡补票（扣票）
-	 * @param params
+	 * @param cardId
+	 * @param ticketNum
+	 * @param type
 	 * @return
 	 * @throws Exception
 	 */
-	public int addOrDelTicket(Map<String,Object> params)throws Exception;
+	public int addOrDelTicket(Integer cardId, Integer ticketNum, Integer type)throws Exception;
 	
 	/**
 	 * 删除老人卡

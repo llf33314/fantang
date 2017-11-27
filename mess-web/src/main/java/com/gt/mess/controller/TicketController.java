@@ -1,35 +1,33 @@
 package com.gt.mess.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
-import com.gt.mess.base.BaseController;
 import com.gt.mess.dao.MessCardGroupMapper;
 import com.gt.mess.dao.MessDepartmentMapper;
 import com.gt.mess.dto.ResponseDTO;
 import com.gt.mess.entity.*;
 import com.gt.mess.exception.BaseException;
-import com.gt.mess.properties.WxmpApiProperties;
-import com.gt.mess.service.*;
+import com.gt.mess.service.MessBasisSetService;
+import com.gt.mess.service.MessCardService;
+import com.gt.mess.service.MessMainService;
+import com.gt.mess.vo.SaveOrUpdateMessCardVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +35,7 @@ import java.util.Map;
 /**
  * 饭票管理模块
  */
+@Api(description = "饭票管理模块")
 @Controller
 @RequestMapping(value = "ticket")
 public class TicketController {
@@ -65,7 +64,8 @@ public class TicketController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "/ticketManage")
+    @ApiOperation(value = "饭卡管理",notes = "饭卡管理数据获取",httpMethod = "GET")
+    @RequestMapping(value = "/ticketManage", method = RequestMethod.GET)
     public ResponseDTO ticketManage(HttpServletRequest request, HttpServletResponse response,
                                      Page<MessCard> page) {
         try {
@@ -95,12 +95,14 @@ public class TicketController {
     /**
      * 饭卡管理(根据卡号查询)
      * @param request
-     * @param response
      * @return
      */
-    @RequestMapping(value = "/selectTicketManageByCardCode")
+    @ApiOperation(value = "饭卡管理(根据卡号查询)",notes = "饭卡管理(根据卡号查询)",httpMethod = "POST")
+    @RequestMapping(value = "/selectTicketManageByCardCode", method = RequestMethod.POST)
     public ResponseDTO selectTicketManageByCardCode(HttpServletRequest request,
-                                                     Page<MessCard> page,@RequestParam String search) {
+                                                    Page<MessCard> page,
+                                                    @ApiParam(name = "cardCode", value = "饭卡号")
+                                                    @RequestParam String cardCode) {
         try {
             JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
@@ -109,7 +111,7 @@ public class TicketController {
             Integer mainId = messMain.getId();
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("mainId", mainId);
-            map.put("cardCode", search);
+            map.put("cardCode", cardCode);
             Page<MessCard> messCards =
                     messCardService.selectCardApplyByCardCode(page, map, 10);
             MessBasisSet messBasisSet =
@@ -121,7 +123,7 @@ public class TicketController {
             jsonData.put("messCardGroups", messCardGroups);
             jsonData.put("messDepartments", messDepartments);
             jsonData.put("messBasisSet", messBasisSet);
-            jsonData.put("search", search);
+            jsonData.put("cardCode", cardCode);
             jsonData.put("messCards", messCards.getRecords());
             jsonData.put("selectType", 0);//0卡号查询 1名字查询 2部门查询
 //            mv.setViewName("merchants/trade/mess/admin/ticketManage/ticketManage");
@@ -137,9 +139,12 @@ public class TicketController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/selectTicketManageByName")
+    @ApiOperation(value = "饭卡管理(根据名字查询)",notes = "饭卡管理(根据名字查询)",httpMethod = "POST")
+    @RequestMapping(value = "/selectTicketManageByName", method = RequestMethod.POST)
     public ResponseDTO selectTicketManageByName(HttpServletRequest request,
-                                                 Page<MessCard> page,@RequestParam String search) {
+                                                Page<MessCard> page,
+                                                @ApiParam(name = "name", value = "名字")
+                                                @RequestParam String name) {
         try {
             JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
@@ -148,7 +153,7 @@ public class TicketController {
             Integer mainId = messMain.getId();
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("mainId", mainId);
-            map.put("name", search);
+            map.put("name", name);
             Page<MessCard> messCards =
                     messCardService.selectCardApplyByName(page, map, 10);
             MessBasisSet messBasisSet =
@@ -160,7 +165,6 @@ public class TicketController {
             jsonData.put("messCardGroups", messCardGroups);
             jsonData.put("messDepartments", messDepartments);
             jsonData.put("messBasisSet", messBasisSet);
-            jsonData.put("search", search);
             jsonData.put("messCards", messCards.getRecords());
             jsonData.put("selectType", 1);//0卡号查询 1名字查询 2部门查询
 //            mv.setViewName("merchants/trade/mess/admin/ticketManage/ticketManage");
@@ -176,9 +180,12 @@ public class TicketController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/selectTicketManageByDepartment")
+    @ApiOperation(value = "饭卡管理(根据部门查询)",notes = "饭卡管理(根据部门查询)",httpMethod = "POST")
+    @RequestMapping(value = "/selectTicketManageByDepartment", method = RequestMethod.POST)
     public ResponseDTO selectTicketManageByDepartment(HttpServletRequest request,
-                                                       Page<MessCard> page,@RequestParam String search) {
+                                                      Page<MessCard> page,
+                                                      @ApiParam(name = "department", value = "部门名称")
+                                                      @RequestParam String department) {
         try {
             JSONObject jsonData = new JSONObject();
             BusUser busUser = SessionUtils.getLoginUser(request);
@@ -187,7 +194,7 @@ public class TicketController {
             Integer mainId = messMain.getId();
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("mainId", mainId);
-            map.put("department", search);
+            map.put("department", department);
             Page<MessCard> messCards =
                     messCardService.selectCardApplyByDepartment(page, map, 10);
             MessBasisSet messBasisSet =
@@ -199,7 +206,6 @@ public class TicketController {
             jsonData.put("messCardGroups", messCardGroups);
             jsonData.put("messDepartments", messDepartments);
             jsonData.put("messBasisSet", messBasisSet);
-            jsonData.put("search", search);
             jsonData.put("messCards", messCards.getRecords());
             jsonData.put("selectType", 2);//0卡号查询 1名字查询 2部门查询
 //            mv.setViewName("merchants/trade/mess/admin/ticketManage/ticketManage");
@@ -214,7 +220,8 @@ public class TicketController {
      * 导出模板
      * @param response
      */
-    @RequestMapping(value = "/exportsTemplate")
+    @ApiOperation(value = "导出模板",notes = "导出模板",httpMethod = "GET")
+    @RequestMapping(value = "/exportsTemplate", method = RequestMethod.GET)
     public void exportsTemplate(HttpServletResponse response) {
         try {
             Map<String, Object> msg = messCardService.exports();
@@ -242,15 +249,15 @@ public class TicketController {
 
     /**
      * 导入饭卡
-     *
      * @param request
-     * @param response
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 导入饭卡",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "{depId}/enteringCard")
-    public ResponseDTO enteringCard(HttpServletRequest request, HttpServletResponse response,
-                                     Page<MessCard> page,@PathVariable("depId") Integer depId) {
+    @ApiOperation(value = "导入饭卡",notes = "导入饭卡",httpMethod = "GET")
+    @RequestMapping(value = "{depId}/enteringCard", method = RequestMethod.GET)
+    public ResponseDTO enteringCard(HttpServletRequest request,
+                                    Page<MessCard> page,
+                                    @ApiParam(name = "depId", value = "部门ID")
+                                    @PathVariable("depId") Integer depId) {
         try {
             Integer mainId = null;
             JSONObject jsonData = new JSONObject();
@@ -306,11 +313,16 @@ public class TicketController {
      * 保存或更新饭卡
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 保存或更新饭卡",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/saveOrUpdateMessCard")
-    public ResponseDTO saveOrUpdateMessCard(@RequestParam Map <String,Object> params) {
+    @ApiOperation(value = "保存或更新饭卡",notes = "保存或更新饭卡",httpMethod = "POST")
+    @RequestMapping(value = "/saveOrUpdateMessCard", method = RequestMethod.POST)
+    public ResponseDTO saveOrUpdateMessCard(HttpServletRequest request, @Valid @ModelAttribute SaveOrUpdateMessCardVo saveVo) {
         try {
-            int data = messCardService.saveOrUpdateMessCard(params);
+            BusUser busUser = SessionUtils.getLoginUser(request);
+            MessMain messMain =
+                    messMainService.getMessMainByBusId(busUser.getId());
+            Integer mainId= messMain.getId();
+            saveVo.setMainId(mainId);
+            int data = messCardService.saveOrUpdateMessCard(saveVo);
             if(data == 1)
                 return ResponseDTO.createBySuccess();
             else
@@ -325,9 +337,10 @@ public class TicketController {
      * 删除饭卡
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 删除饭卡",op_function="4")//保存2，修改3，删除4
-    @RequestMapping(value = "{cardId}/delMessCard")
-    public ResponseDTO delMessCard(@PathVariable("cardId") Integer cardId) {
+    @ApiOperation(value = "删除饭卡",notes = "删除饭卡",httpMethod = "GET")
+    @RequestMapping(value = "{cardId}/delMessCard", method = RequestMethod.GET)
+    public ResponseDTO delMessCard(@ApiParam(name = "cardId", value = "饭卡Id", required = true)
+                                   @PathVariable("cardId") Integer cardId) {
         try {
             int data = messCardService.delMessCard(cardId);
             if(data == 1)
@@ -344,9 +357,10 @@ public class TicketController {
      * 批量删除饭卡
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 批量删除饭卡",op_function="4")//保存2，修改3，删除4
-    @RequestMapping(value = "/delMessCards")
-    public ResponseDTO delMessCards(@RequestParam String cardIds) {
+    @ApiOperation(value = "批量删除饭卡",notes = "批量删除饭卡",httpMethod = "POST")
+    @RequestMapping(value = "/delMessCards", method = RequestMethod.POST)
+    public ResponseDTO delMessCards(@ApiParam(name = "cardIds", value = "饭卡Id列表", required = true)
+                                    @RequestParam String cardIds) {
         try {
             int data = 0;
             String [] tempArr = cardIds.split(",");
@@ -367,11 +381,14 @@ public class TicketController {
      * 修改饭卡组
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 修改饭卡组",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/changeGroup")
-    public ResponseDTO changeGroup(@RequestParam Map<String,Object> params) {
+    @ApiOperation(value = "修改饭卡组",notes = "修改饭卡组",httpMethod = "POST")
+    @RequestMapping(value = "/changeGroup", method = RequestMethod.POST)
+    public ResponseDTO changeGroup(@ApiParam(name = "cardId", value = "饭卡Id", required = true)
+                                   @RequestParam Integer cardId,
+                                   @ApiParam(name = "groupId", value = "饭卡组Id", required = true)
+                                   @RequestParam Integer groupId) {
         try {
-            int data = messCardService.changeGroup(params);
+            int data = messCardService.changeGroup(cardId,groupId);
             if(data == 1)
                 return ResponseDTO.createBySuccess();
             else
@@ -386,14 +403,16 @@ public class TicketController {
      * 批量修改饭卡组
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 批量修改部门",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/changeGroups")
-    public ResponseDTO changeGroups(@RequestParam Map<String,Object> params) {
+    @ApiOperation(value = "批量修改饭卡组",notes = "批量修改饭卡组",httpMethod = "POST")
+    @RequestMapping(value = "/changeGroups", method = RequestMethod.POST)
+    public ResponseDTO changeGroups(@ApiParam(name = "cardIds", value = "饭卡Id列表：1,2,3,4", required = true)
+                                        @RequestParam String cardIds,
+                                    @ApiParam(name = "groupId", value = "饭卡组Id", required = true)
+                                        @RequestParam Integer groupId) {
         try {
             int data = 0;
-            for(String cardId: params.get("cardIds").toString().split(",")){
-                params.put("cardId", cardId);
-                data = messCardService.changeGroup(params);
+            for(String cardId: cardIds.split(",")){
+                data = messCardService.changeGroup(Integer.valueOf(cardId),groupId);
             }
             if(data == 1)
                 return ResponseDTO.createBySuccess();
@@ -409,11 +428,16 @@ public class TicketController {
      * 修改部门
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 修改部门",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/changeDep")
-    public ResponseDTO changeDep(@RequestParam Map<String,Object> params) {
+    @ApiOperation(value = "修改部门",notes = "修改部门",httpMethod = "POST")
+    @RequestMapping(value = "/changeDep", method = RequestMethod.POST)
+    public ResponseDTO changeDep(@ApiParam(name = "cardId", value = "饭卡Id", required = true)
+                                     @RequestParam Integer cardId,
+                                 @ApiParam(name = "depId", value = "部门ID(当部门ID为-1时，默认是不选部门)", required = true)
+                                     @RequestParam Integer depId,
+                                 @ApiParam(name = "department", value = "部门名称")
+                                     String department) {
         try {
-            int data = messCardService.changeDep(params);
+            int data = messCardService.changeDep(cardId,depId,department);
             if(data == 1)
                 return ResponseDTO.createBySuccess();
             else
@@ -428,14 +452,18 @@ public class TicketController {
      * 批量修改部门
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 批量修改部门",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/changeDeps")
-    public ResponseDTO changeDeps(@RequestParam Map<String,Object> params) {
+    @ApiOperation(value = "批量修改部门",notes = "批量修改部门",httpMethod = "POST")
+    @RequestMapping(value = "/changeDeps", method = RequestMethod.POST)
+    public ResponseDTO changeDeps(@ApiParam(name = "cardIds", value = "饭卡Id列表", required = true)
+                                      @RequestParam String cardIds,
+                                  @ApiParam(name = "depId", value = "部门ID(当部门ID为-1时，默认是不选部门)", required = true)
+                                      @RequestParam Integer depId,
+                                  @ApiParam(name = "department", value = "部门名称")
+                                      String department) {
         try {
             int data = 0;
-            for(String cardId: params.get("cardIds").toString().split(",")){
-                params.put("cardId", cardId);
-                data = messCardService.changeDep(params);
+            for(String cardId: cardIds.split(",")){
+                data = messCardService.changeDep(Integer.valueOf(cardId),depId,department);
             }
             if(data == 1)
                 return ResponseDTO.createBySuccess();

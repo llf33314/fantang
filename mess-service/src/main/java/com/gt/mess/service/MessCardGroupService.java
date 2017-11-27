@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.mess.entity.MessCardGroup;
+import com.gt.mess.vo.SaveOrUpdateCardGroupVo;
 
 /**
  * 饭卡组
@@ -23,11 +24,11 @@ public interface MessCardGroupService {
 
 	/**
 	 * 保存或更新饭卡组
-	 * @param params
+	 * @param saveVo
 	 * @return
 	 * @throws Exception
 	 */
-	public int saveOrUpdateCardGroup(Map<String,Object> params)throws Exception;
+	public int saveOrUpdateCardGroup(SaveOrUpdateCardGroupVo saveVo)throws Exception;
 	
 	/**
 	 * 根据id删除饭卡组

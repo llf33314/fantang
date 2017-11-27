@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.bean.session.Member;
-import com.gt.api.bean.session.WxPublicUsers;
 import com.gt.api.util.SessionUtils;
 import com.gt.mess.dao.MessDepartmentMapper;
 import com.gt.mess.dto.ResponseDTO;
@@ -16,26 +15,24 @@ import com.gt.mess.exception.ResponseEntityException;
 import com.gt.mess.service.*;
 import com.gt.mess.util.CommonUtil;
 import com.gt.mess.util.DateTimeKit;
-import com.gt.mess.util.RedisCacheUtil;
 import com.gt.mess.util.WxmpUtil;
+import com.gt.mess.vo.SelectCancelRecordVo;
+import com.gt.mess.vo.SelectMainIdDepIdCardCodeVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.jws.WebResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +43,7 @@ import java.util.Map;
  * @author psr
  *
  */
+@Api(description = "食堂营业前台")
 @Controller
 @RequestMapping(value = "messReception")
 public class MessReceptionController {
@@ -81,21 +79,6 @@ public class MessReceptionController {
 
 	@Autowired
 	private MessOldManCardService messOldManCardService;
-
-//	@Autowired
-//	private DictService  dictService;
-//
-//	@Autowired
-//	private BusUserMapper busUserMapper;
-//
-//	@Autowired
-//	private WxPublicUsersMapper wxPublicUsersMapper;
-//
-//	@Autowired
-//	private MemberService memberService;
-
-//	@Value("#{config['public.getgrant.url.prefix']}")
-//	private String signPath;
 
 	@Autowired
 	private MessOldManCardOrderService messOldManCardOrderService;
@@ -139,32 +122,32 @@ public class MessReceptionController {
     }
 
 
-    /**
-	 * 前台操作入口
-	 * @param request
-	 * @return
-	 */
-//	@CommAnno(menu_url="messReception/receptionIndex.do")
-	@RequestMapping("receptionIndex")
-	public String messStart(HttpServletRequest request){
-		Object indexurl = request.getParameter("indexurl");
-		if(indexurl!=null){
-			request.setAttribute("indexurl", indexurl);
-		}
-		BusUser busUser = SessionUtils.getLoginUser(request);
-		MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
-		if(CommonUtil.isEmpty(messMain)){
-			return "redirect:/mess/messStart.do";
-		}
-		return "merchants/trade/mess/admin/reception/receptionIndex";
-	}
+//    /**
+//	 * 前台操作入口
+//	 * @param request
+//	 * @return
+//	 */
+//	@RequestMapping("receptionIndex")
+//	public String messStart(HttpServletRequest request){
+//		Object indexurl = request.getParameter("indexurl");
+//		if(indexurl!=null){
+//			request.setAttribute("indexurl", indexurl);
+//		}
+//		BusUser busUser = SessionUtils.getLoginUser(request);
+//		MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
+//		if(CommonUtil.isEmpty(messMain)){
+//			return "redirect:/mess/messStart.do";
+//		}
+//		return "merchants/trade/mess/admin/reception/receptionIndex";
+//	}
 
 	/**
 	 * 跳转到现场核销页面
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/toLocaleCancel")
+	@ApiOperation(value = "跳转到现场核销页面",notes = "跳转到现场核销页面",httpMethod = "GET")
+	@RequestMapping(value = "/toLocaleCancel", method = RequestMethod.GET)
 	public ResponseDTO toLocaleCancel(HttpServletRequest request) {
 		try {
 			JSONObject jsonData = new JSONObject();
@@ -183,13 +166,13 @@ public class MessReceptionController {
 	}
 
 	/**
-	 * 跳转到现场核销页面
+	 * 跳转到现场核销页面(列表)
 	 * @param request
-	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = "/toListCancel")
-	public ResponseDTO toListCancel(HttpServletRequest request, HttpServletResponse response) {
+	@ApiOperation(value = "跳转到现场核销页面(列表)",notes = "跳转到现场核销页面(列表)",httpMethod = "GET")
+	@RequestMapping(value = "/toListCancel", method = RequestMethod.GET)
+	public ResponseDTO toListCancel(HttpServletRequest request) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
@@ -210,11 +193,11 @@ public class MessReceptionController {
 	/**
 	 * 现场核销信息
 	 * @param request
-	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = "/localeCancelInfo")
-	public ResponseDTO localeCancelInfo(HttpServletRequest request, HttpServletResponse response) {
+	@ApiOperation(value = "现场核销信息",notes = "现场核销信息",httpMethod = "GET")
+	@RequestMapping(value = "/localeCancelInfo", method = RequestMethod.GET)
+	public ResponseDTO localeCancelInfo(HttpServletRequest request) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
@@ -281,17 +264,17 @@ public class MessReceptionController {
 	/**
 	 * 最新5条现场核销信息
 	 * @param request
-	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = "/localeCancelList")
-	public ResponseDTO localeCancelList(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam Map<String, Object> params) {
+	@ApiOperation(value = "现场核销信息",notes = "现场核销信息",httpMethod = "POST")
+	@RequestMapping(value = "/localeCancelList", method = RequestMethod.POST)
+	public ResponseDTO localeCancelList(HttpServletRequest request,
+										@ApiParam(name = "nums", value = "条数", required = true)
+										@RequestParam Integer nums) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			int nums = Integer.valueOf((String) params.get("nums"));
 			List<Map<String, Object>> cancelList = messMealTempOrderService.getMessMealTempOrderByMainId(mainId, nums);
             // 返回参数
             return ResponseDTO.createBySuccess( JSON.toJSONString(cancelList) );
@@ -303,17 +286,19 @@ public class MessReceptionController {
 	/**
 	 * 核销记录(根据条件查询)
 	 * @param request
-	 * @param response
+	 * @param saveVo
 	 * @return
 	 */
-	@RequestMapping(value = "/selectCancelRecord")
-	public ResponseDTO selectCancelRecord(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam Map <String,Object> params) {
+	@ApiOperation(value = "核销记录(根据条件查询)",notes = "核销记录(根据条件查询)",httpMethod = "POST")
+	@RequestMapping(value = "/selectCancelRecord", method = RequestMethod.POST)
+	public ResponseDTO selectCancelRecord(HttpServletRequest request,
+										  @Valid @ModelAttribute SelectCancelRecordVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			params.put("mainId", mainId);
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			int nums = Integer.valueOf((String) params.get("nums"));
 			int pageNum = 1;
 			if(CommonUtil.isNotEmpty(params.get("pageNum"))){
@@ -365,16 +350,18 @@ public class MessReceptionController {
 	 * 根据条件导出核销记录
 	 * @param request
 	 * @param response
-	 * @param params
+	 * @param saveVo
 	 */
-	@RequestMapping(value = "/exports")
+	@ApiOperation(value = "根据条件导出核销记录",notes = "根据条件导出核销记录",httpMethod = "POST")
+	@RequestMapping(value = "/exports", method = RequestMethod.POST)
 	public void exports(HttpServletRequest request,
-			HttpServletResponse response,@RequestParam Map <String,Object> params) {
+			HttpServletResponse response,@Valid @ModelAttribute SelectCancelRecordVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
-			params.put("mainId", mainId);
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			if(CommonUtil.isEmpty(params.get("cardCode"))){
 				params.remove("cardCode");
 			}else{
@@ -462,11 +449,20 @@ public class MessReceptionController {
 	 * 扫码核销 (扫码员) - GET
 	 * @param request
 	 * @param response
-	 * @param params
+	 * @param busId
+	 * @param cardId
+	 * @param mealCode
+	 * @return
 	 */
+	@ApiOperation(value = "扫码核销 (扫码员) - GET",notes = "扫码核销 (扫码员) - GET",httpMethod = "GET")
 	@RequestMapping(value = "/{busId}/{cardId}/{mealCode}/79B4DE7C/wirteOff", method = RequestMethod.GET)
 	public ModelAndView wirteOffGET(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable Integer busId, @PathVariable Integer cardId, @PathVariable String mealCode) {
+									@ApiParam(name = "busId", value = "商家ID", required = true)
+									@PathVariable Integer busId,
+									@ApiParam(name = "cardId", value = "饭卡ID", required = true)
+									@PathVariable Integer cardId,
+									@ApiParam(name = "mealCode", value = "取餐号", required = true)
+									@PathVariable String mealCode) {
 		ModelAndView mav = new ModelAndView();
 		try {
 			MessMain messMain = messMainService.getMessMainByBusId(busId);
@@ -519,14 +515,16 @@ public class MessReceptionController {
 
 	/**
 	 * 扫码核销 - POST
-	 * @param request
-	 * @param response
-	 * @param params
+	 * @param cardId
+	 * @param mealCode
+	 * @return
 	 */
-	@RequestMapping(value = "/{busId}/{cardId}/{mealCode}/79B4DE7C/wirteOff", method = RequestMethod.POST)
-	public ResponseDTO wirteOffPOST(HttpServletRequest request,
-			HttpServletResponse response,@PathVariable Integer busId,@PathVariable Integer cardId,@PathVariable String mealCode,
-			@RequestParam Map <String,Object> params) {
+	@ApiOperation(value = "扫码核销 - POST",notes = "扫码核销 - POST",httpMethod = "POST")
+	@RequestMapping(value = "/{cardId}/{mealCode}/79B4DE7C/wirteOff", method = RequestMethod.POST)
+	public ResponseDTO wirteOffPOST(@ApiParam(name = "cardId", value = "饭卡ID", required = true)
+									@PathVariable Integer cardId,
+									@ApiParam(name = "mealCode", value = "取餐号", required = true)
+									@PathVariable String mealCode) {
 		try {
 			// 开始核销
 			if(CommonUtil.isEmpty(mealCode)){
@@ -555,19 +553,18 @@ public class MessReceptionController {
 
 	/**
 	 * 取餐码核销
-	 * @param request
-	 * @param response
-	 * @param params
+	 * @param mealCode
+	 * @return
 	 */
-	@RequestMapping(value = "/wirteOff")
-	public ResponseDTO wirteOffByMealCode(HttpServletRequest request,
-			HttpServletResponse response, @RequestParam Map <String,Object> params) {
+	@ApiOperation(value = "取餐码核销",notes = "取餐码核销",httpMethod = "POST")
+	@RequestMapping(value = "/wirteOff", method = RequestMethod.POST)
+	public ResponseDTO wirteOffByMealCode(@ApiParam(name = "mealCode", value = "取餐号", required = true)
+										  @RequestParam String mealCode) {
 		try {
 			// 开始核销
-			if(CommonUtil.isEmpty(params.get("mealCode"))){
+			if(CommonUtil.isEmpty(mealCode)){
                 return ResponseDTO.createByErrorMessage("核销失败，取餐号不能为空");
 			}
-			String mealCode = (String) params.get("mealCode");
 			Map<String, Object> map = messCardService.cancelMealTicket(mealCode, null,0,0);
 			if(map == null || map.size() <= 0 || CommonUtil.isEmpty(map.get("code"))){
 				// 返回核销失败页面
@@ -592,11 +589,11 @@ public class MessReceptionController {
 	/**
 	 * 加餐核销订单
 	 * @param request
-	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = "/addFoodOrder")
-	public ResponseDTO addFoodOrder(HttpServletRequest request, HttpServletResponse response,
+	@ApiOperation(value = "加餐核销订单",notes = "加餐核销订单数据获取",httpMethod = "GET")
+	@RequestMapping(value = "/addFoodOrder", method = RequestMethod.GET)
+	public ResponseDTO addFoodOrder(HttpServletRequest request,
 			Page<MessAddFoodOrder> page) {
 		try {
 			JSONObject jsonData = new JSONObject();
@@ -622,16 +619,18 @@ public class MessReceptionController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/selectAddFoodOrder")
+	@ApiOperation(value = "加餐核销订单（搜索）",notes = "搜索加餐核销订单",httpMethod = "POST")
+	@RequestMapping(value = "/selectAddFoodOrder", method = RequestMethod.POST)
 	public ResponseDTO selectAddFoodOrder(HttpServletRequest request,
-			Page<MessAddFoodOrder> page,@RequestParam Map<String,Object> params) {
+			Page<MessAddFoodOrder> page,@Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId= messMain.getId();
-			params.put("mainId", mainId);
+			saveVo.setMainId(mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			Page<MessAddFoodOrder> messAddFoodOrders =
 					messAddFoodOrderService.selectAddFoodOrder(page, params, 10);
 			jsonData.put("messAddFoodOrders", messAddFoodOrders);
@@ -650,17 +649,18 @@ public class MessReceptionController {
 	 * 导出加餐核销记录
 	 * @param request
 	 * @param response
-	 * @param params
+	 * @param saveVo
 	 */
-	@RequestMapping(value = "/exportsAddFoodOrder")
+	@ApiOperation(value = "导出加餐核销记录",notes = "导出加餐核销记录",httpMethod = "GET")
+	@RequestMapping(value = "/exportsAddFoodOrder", method = RequestMethod.GET)
 	public void exportsAddFoodOrder(HttpServletRequest request,
-			HttpServletResponse response,@RequestParam Map <String,Object> params) {
+			HttpServletResponse response,@Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId= messMain.getId();
-			params.put("mainId", mainId);
+			Map<String,Object> params = JSONObject.parseObject(JSONObject.toJSONString(saveVo),Map.class);
 			Map<String, Object> msg = messAddFoodOrderService.exports(params);
 			if ((boolean) msg.get("result")) {
 				HSSFWorkbook wb = (HSSFWorkbook) msg.get("book");
@@ -689,7 +689,8 @@ public class MessReceptionController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/oldManCard")
+	@ApiOperation(value = "老人卡",notes = "老人卡数据获取",httpMethod = "GET")
+	@RequestMapping(value = "/oldManCard", method = RequestMethod.GET)
 	public ResponseDTO oldManCard(HttpServletRequest request,
 			Page<MessOldManCard> page) {
 		try {
@@ -703,7 +704,7 @@ public class MessReceptionController {
 			List<MessDepartment> messDepartments =
 					messDepartmentMapper.getMessDepartmentPageByMainId(mainId);
 			jsonData.put("messDepartments", messDepartments);
-			jsonData.put("messOldManCards", messOldManCards);
+			jsonData.put("messOldManCards", messOldManCards.getRecords());
 			jsonData.put("mainId", mainId);
 //			mv.setViewName("merchants/trade/mess/admin/reception/oldManCard");
 			return ResponseDTO.createBySuccess(jsonData);
@@ -718,20 +719,25 @@ public class MessReceptionController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/selectOldManCard")
+	@ApiOperation(value = "老人卡(搜索)",notes = "老人卡(搜索)",httpMethod = "POST")
+	@RequestMapping(value = "/selectOldManCard", method = RequestMethod.POST)
 	public ResponseDTO selectOldManCard(HttpServletRequest request,
-			Page<MessOldManCard> page,@RequestParam Map <String,Object> params) {
+			Page<MessOldManCard> page,
+			@ApiParam(name = "cardCode", value = "饭卡号", required = true)
+			@RequestParam String cardCode) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
+			Map<String,Object> params = new HashMap<>();
 			params.put("mainId", mainId);
+			params.put("cardCode", cardCode);
 			Page<MessOldManCard> messOldManCards =
 					messOldManCardService.selectOldManCardManage(page, params, 10);
-			jsonData.put("search", params.get("cardCode").toString());
-			jsonData.put("messOldManCards", messOldManCards);
+			jsonData.put("search", cardCode);
+			jsonData.put("messOldManCards", messOldManCards.getRecords());
 			jsonData.put("mainId", mainId);
 //			mv.setViewName("merchants/trade/mess/admin/reception/oldManCard");
 			return ResponseDTO.createBySuccess(jsonData);
@@ -746,7 +752,8 @@ public class MessReceptionController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/commonCard")
+	@ApiOperation(value = "普通饭卡",notes = "普通饭卡数据获取",httpMethod = "GET")
+	@RequestMapping(value = "/commonCard", method = RequestMethod.GET)
 	public ResponseDTO commonCard(HttpServletRequest request,
 			Page<MessCard> page) {
 		try {
@@ -772,14 +779,21 @@ public class MessReceptionController {
 
 	/**
 	 * 核销饭票（手动核销）
-	 * @param params
+	 * @param id
+	 * @param ticketNum
+	 * @param ticketType
 	 * @return
 	 */
-//	@SysLogAnnotation(description="微食堂 核销饭票（手动核销）",op_function="3")//保存2，修改3，删除4
-	@RequestMapping(value = "/cancelTicket")
-	public ResponseDTO cancelTicket(@RequestParam Map <String,Object> params) {
+	@ApiOperation(value = "核销饭票（手动核销）",notes = "核销饭票（手动核销）",httpMethod = "POST")
+	@RequestMapping(value = "/cancelTicket", method = RequestMethod.POST)
+	public ResponseDTO cancelTicket(@ApiParam(name = "id", value = "饭卡ID", required = true)
+									@RequestParam Integer id,
+									@ApiParam(name = "ticketNum", value = "核销张数", required = true)
+									@RequestParam Integer ticketNum,
+									@ApiParam(name = "ticketType", value = "饭票类型（0早 1中 2晚 3夜宵 4通用）", required = true)
+									@RequestParam Integer ticketType) {
 		try {
-			int data = messCardService.cancelTicket(params);
+			int data = messCardService.cancelTicket(id,ticketNum,ticketType);
 			if(data == 1)
 				return ResponseDTO.createBySuccess();
 			else
@@ -795,9 +809,12 @@ public class MessReceptionController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/selectCommonCardByCardCode")
+	@ApiOperation(value = "普通饭卡(根据卡号查询)",notes = "普通饭卡(根据卡号查询)",httpMethod = "GET")
+	@RequestMapping(value = "/selectCommonCardByCardCode", method = RequestMethod.GET)
 	public ResponseDTO selectCommonCardByCardCode(HttpServletRequest request,
-			Page<MessCard> page,@RequestParam String search) {
+			Page<MessCard> page,
+			@ApiParam(name = "cardCode", value = "饭卡号", required = true)
+			@RequestParam String cardCode) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
@@ -806,13 +823,13 @@ public class MessReceptionController {
 			Integer mainId = messMain.getId();
 			Map<String,Object> map = new HashMap<String, Object>();
 			map.put("mainId", mainId);
-			map.put("cardCode", search);
+			map.put("cardCode", cardCode);
 			Page<MessCard> messCards =
 					messCardService.selectCardApplyByCardCode(page, map, 10);
 			MessBasisSet messBasisSet =
 					messBasisSetService.getMessBasisSetByMainId(messMain.getId());
 			jsonData.put("messBasisSet", messBasisSet);
-			jsonData.put("search", search);
+			jsonData.put("cardCode", cardCode);
 			jsonData.put("messCards", messCards);
 			jsonData.put("selectType", 0);//0卡号查询 1名字查询 2部门查询
 //			mv.setViewName("merchants/trade/mess/admin/reception/commonCard");
@@ -831,8 +848,10 @@ public class MessReceptionController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/{type}/messOldManCardOrder")
+	@ApiOperation(value = "老人卡&普通卡（手动核销列表）",notes = "老人卡&普通卡（手动核销列表）",httpMethod = "POST")
+	@RequestMapping(value = "/{type}/messOldManCardOrder", method = RequestMethod.POST)
 	public ResponseDTO messOldManCardOrder(HttpServletRequest request,
+			@ApiParam(name = "type", value = "type为 3:获取普通卡（手动核销列表），0:老人卡（手动核销列表） 1:老人卡（商家扣票、补票记录）", required = true)
 			@PathVariable("type") Integer type,Page<MessOldManCardOrder> page) {
 		try {
 			JSONObject jsonData = new JSONObject();
@@ -858,7 +877,7 @@ public class MessReceptionController {
 //				mv.setViewName("merchants/trade/mess/admin/mealOrder/oldManCardOrder");
 			}
 
-			jsonData.put("messOldManCardOrders", messOldManCardOrders);
+			jsonData.put("messOldManCardOrders", messOldManCardOrders.getRecords());
 			jsonData.put("mainId", mainId);
 			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
@@ -872,16 +891,28 @@ public class MessReceptionController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/{type}/selectMessOldManCardOrder")
+	@ApiOperation(value = "老人卡&普通卡(搜索)",notes = "老人卡&普通卡(搜索)",httpMethod = "POST")
+	@RequestMapping(value = "/{type}/selectMessOldManCardOrder", method = RequestMethod.POST)
 	public ResponseDTO selectMessOldManCardOrder(HttpServletRequest request,
-			@PathVariable("type") Integer type,Page<MessOldManCardOrder> page,@RequestParam Map <String,Object> params) {
+												 @ApiParam(name = "type", value = "type为 3:获取普通卡（手动核销列表），0:老人卡（手动核销列表） 1:老人卡（商家扣票、补票记录）", required = true)
+												 @PathVariable("type") Integer type,Page<MessOldManCardOrder> page,
+												 @ApiParam(name = "cardCode", value = "饭卡号")
+												 String cardCode,
+												 @ApiParam(name = "stime", value = "开始时间")
+												 String stime,
+												 @ApiParam(name = "etime", value = "结束时间")
+												 String etime) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId = messMain.getId();
+			Map<String,Object> params = new HashMap<>();
+			params.put("stime", stime);
+			params.put("etime", etime);
 			params.put("mainId", mainId);
+			params.put("cardCode", cardCode);
 			Page<MessOldManCardOrder> messOldManCardOrders = null;
 			if(type == 3){
 				messOldManCardOrders =
@@ -899,9 +930,8 @@ public class MessReceptionController {
 				jsonData.put("url", "messReception/1/selectMessOldManCardOrder.do");
 //				mv.setViewName("merchants/trade/mess/admin/mealOrder/oldManCardOrder");
 			}
-			jsonData.put("search", params.get("cardCode").toString());
 			jsonData.put("params", params);
-			jsonData.put("messOldManCardOrders", messOldManCardOrders);
+			jsonData.put("messOldManCardOrders", messOldManCardOrders.getRecords());
 			jsonData.put("mainId", mainId);
 			return ResponseDTO.createBySuccess(jsonData);
 		} catch (Exception e) {
@@ -914,17 +944,33 @@ public class MessReceptionController {
 	 * 导出老人卡&普通卡核销记录
 	 * @param request
 	 * @param response
-	 * @param params
+	 * @param type
+	 * @param cardCode
+	 * @param stime
+	 * @param etime
 	 */
-	@RequestMapping(value = "/exportsCardOrder")
+	@ApiOperation(value = "导出老人卡&普通卡核销记录",notes = "导出老人卡&普通卡核销记录",httpMethod = "POST")
+	@RequestMapping(value = "/exportsCardOrder", method = RequestMethod.POST)
 	public void exportsCardOrder(HttpServletRequest request,HttpServletResponse response,
-			@RequestParam Map <String,Object> params) {
+								 @ApiParam(name = "type", value = "type为 3:获取普通卡（手动核销列表），0:老人卡（手动核销列表） 1:老人卡（商家扣票、补票记录）", required = true)
+								 @RequestParam Integer type,
+								 @ApiParam(name = "cardCode", value = "饭卡号")
+											 String cardCode,
+								 @ApiParam(name = "stime", value = "开始时间")
+											 String stime,
+								 @ApiParam(name = "etime", value = "结束时间")
+											 String etime) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
 					messMainService.getMessMainByBusId(busUser.getId());
 			Integer mainId= messMain.getId();
+			Map<String,Object> params = new HashMap<>();
+			params.put("type", type);
+			params.put("stime", stime);
+			params.put("etime", etime);
 			params.put("mainId", mainId);
+			params.put("cardCode", cardCode);
 			Map<String, Object> msg = messOldManCardOrderService.exports(params);
 			if ((boolean) msg.get("result")) {
 				HSSFWorkbook wb = (HSSFWorkbook) msg.get("book");

@@ -1,36 +1,34 @@
 package com.gt.mess.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
 import com.gt.mess.dto.ResponseDTO;
-import com.gt.mess.entity.MessBasisSet;
-import com.gt.mess.entity.MessCardGroup;
 import com.gt.mess.entity.MessDepartment;
 import com.gt.mess.entity.MessMain;
 import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessCardService;
 import com.gt.mess.service.MessDepartmentService;
 import com.gt.mess.service.MessMainService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 部门管理模块
  */
+@Api(description = "部门管理模块")
 @Controller
 @RequestMapping(value = "department")
 public class DepartmentController {
@@ -52,7 +50,8 @@ public class DepartmentController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/departmentManage")
+    @ApiOperation(value = "部门管理",notes = "部门管理数据获取",httpMethod = "GET")
+    @RequestMapping(value = "/departmentManage", method= RequestMethod.GET)
     public ResponseDTO departmentManage(HttpServletRequest request,
                                          Page<MessDepartment> page) {
         try {
@@ -78,11 +77,18 @@ public class DepartmentController {
      * 保存或更新部门
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 保存或更新部门",op_function="3")//保存2，修改3，删除4
-    @RequestMapping(value = "/saveOrUpdateDepartment")
-    public ResponseDTO saveOrUpdateDepartment(@RequestParam Map<String,Object> params) {
+    @ApiOperation(value = "保存或更新部门",notes = "保存或更新部门",httpMethod = "POST")
+    @RequestMapping(value = "/saveOrUpdateDepartment", method= RequestMethod.POST)
+    public ResponseDTO saveOrUpdateDepartment(@ApiParam(name = "saveType", value = "save:为保存，否则为更新", required = true)
+                                              @RequestParam String saveType,
+                                              @ApiParam(name = "mainId", value = "主表ID", required = true)
+                                              @RequestParam Integer mainId,
+                                              @ApiParam(name = "id", value = "部门ID")
+                                              Integer id,
+                                              @ApiParam(name = "name", value = "部门名称", required = true)
+                                              @RequestParam String name) {
         try {
-            int data = messDepartmentService.saveOrUpdateDepartment(params);
+            int data = messDepartmentService.saveOrUpdateDepartment(saveType,mainId,id,name);
             if(data == 1)
                 return ResponseDTO.createBySuccess();
             else
@@ -98,10 +104,11 @@ public class DepartmentController {
      * @param request
      * @return
      */
-//	@SysLogAnnotation(description="微食堂 删除部门",op_function="4")//保存2，修改3，删除4
-    @RequestMapping(value = "{depId}/delDepartment")
+    @ApiOperation(value = "保存或更新部门",notes = "保存或更新部门",httpMethod = "GET")
+    @RequestMapping(value = "{depId}/delDepartment", method= RequestMethod.GET)
     public ResponseDTO delDepartment(HttpServletRequest request,
-                              @PathVariable("depId") Integer depId) {
+                                     @ApiParam(name = "depId", value = "部门ID", required = true)
+                                     @PathVariable("depId") Integer depId) {
         try {
             int data = 0;
             BusUser busUser = SessionUtils.getLoginUser(request);

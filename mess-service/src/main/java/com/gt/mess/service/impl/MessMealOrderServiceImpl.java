@@ -8,6 +8,7 @@ import com.gt.mess.service.MessMealOrderService;
 import com.gt.mess.util.CommonUtil;
 import com.gt.mess.util.DateTimeKit;
 import com.gt.mess.util.RedisCacheUtil;
+import com.gt.mess.vo.SelectMealOrderVo;
 import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.*;
@@ -17,7 +18,9 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
+import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -73,11 +76,13 @@ public class MessMealOrderServiceImpl implements MessMealOrderService{
 	}
 
 	@Override
-	public Map<String, Object> exports(Map <String,Object> params) {
+	public Map<String, Object> exports(SelectMealOrderVo saveVo) {
 		Map<String, Object> msg = new HashMap<>();
 		boolean result = true;
 		String message = "生成成功！";
 		try {
+			Map<String,Object> params = new HashMap<>();
+			params = com.alibaba.fastjson.JSONObject.parseObject(com.alibaba.fastjson.JSONObject.toJSONString(saveVo),Map.class);
 			List<MessMealOrder> messMealOrders = messMealOrderMapper.selectMealOrder(params);
 			String title = "订餐记录  生成日期："+ time("yyyy-MM-dd hh:mm:ss",new Date().toString());
 			Workbook book = exportExcelForRecoding(messMealOrders, title);
@@ -1109,7 +1114,7 @@ public class MessMealOrderServiceImpl implements MessMealOrderService{
 	}
 
 	@Override
-	public Map<String, Object> exportsMealOrderForMonth(Map<String, Object> params) {
+	public Map<String, Object> exportsMealOrderForMonth(Integer mainId,Integer depId) {
 		// TODO Auto-generated method stub
 		Map<String, Object> msg = new HashMap<>();
 		boolean result = true;
@@ -1128,6 +1133,9 @@ public class MessMealOrderServiceImpl implements MessMealOrderService{
 	        cale.set(Calendar.DAY_OF_MONTH,0);//设置为1号,当前日期既为本月第一天 
 	        String lastDay = format.format(cale.getTime());
 	        System.out.println("-----2------lastDay:"+lastDay);
+	        Map<String,Object> params = new HashMap<>();
+			params.put("mainId", mainId);
+			params.put("depId", depId);
 	        params.put("stime", firstDay);
 	        params.put("etime", lastDay);
 			List<MessMealOrder> messMealOrders = messMealOrderMapper.selectMealOrderForMonth(params);

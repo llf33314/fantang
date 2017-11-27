@@ -3,6 +3,7 @@ package com.gt.mess.service;
 import java.util.Map;
 
 import com.gt.mess.entity.MessBasisSet;
+import com.gt.mess.vo.SaveOrUpdateBasisSetVo;
 
 /**
  * 基础设置表
@@ -20,8 +21,8 @@ public interface MessBasisSetService {
 	
 	/**
 	 * 保存或更新基础设置
-	 * @param params
+	 * @param saveVo
 	 * @return
 	 */
-	public int saveOrUpdateBasisSet(Map <String,Object> params) throws Exception;
+	public int saveOrUpdateBasisSet(SaveOrUpdateBasisSetVo saveVo) throws Exception;
 }
