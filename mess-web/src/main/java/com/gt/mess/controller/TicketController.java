@@ -18,7 +18,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -36,7 +35,7 @@ import java.util.Map;
  * 饭票管理模块
  */
 @Api(description = "饭票管理模块")
-@Controller
+@RestController
 @RequestMapping(value = "ticket")
 public class TicketController {
 

@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.plugins.Page;
 import com.gt.api.bean.session.BusUser;
 import com.gt.api.util.SessionUtils;
 import com.gt.mess.dto.ResponseDTO;
-import com.gt.mess.entity.MessBasisSet;
 import com.gt.mess.entity.MessMain;
 import com.gt.mess.exception.BaseException;
 import com.gt.mess.service.MessAuthorityMemberService;
@@ -16,16 +15,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +29,7 @@ import java.util.Map;
  * 授权模块
  */
 @Api(description = "授权模块")
-@Controller
+@RestController
 @RequestMapping(value = "messAuthority")
 public class MessAuthorityController {
 

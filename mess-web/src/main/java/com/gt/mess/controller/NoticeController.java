@@ -15,11 +15,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Map;
 
@@ -27,7 +25,7 @@ import java.util.Map;
  * 公告管理模块
  */
 @Api(description = "公告管理模块")
-@Controller
+@RestController
 @RequestMapping(value = "notice")
 public class NoticeController {
 

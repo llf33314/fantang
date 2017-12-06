@@ -27,7 +27,7 @@ import java.util.Map;
  * 菜品管理模块
  */
 @Api(description = "菜品管理模块")
-@Controller
+@RestController
 @RequestMapping(value = "basisSet")
 public class MenuController {
 

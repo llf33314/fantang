@@ -15,10 +15,7 @@ import com.gt.mess.util.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,7 +29,7 @@ import java.util.*;
  * @author ZengWenXiang
  * @QQ 307848200
  */
-@Controller
+@RestController
 @RequestMapping(value = "messMobile")
 public class MessMobileController {
 
@@ -183,6 +180,17 @@ public class MessMobileController {
 //		return mapObj;
 //	}
 
+	/**
+	 * 根据mainId获取主表信息
+	 * @param mainId
+	 * @return
+	 */
+	@RequestMapping("/{mainId}/79B4DE7C/getMessMainById")
+	public ResponseDTO getMessMainById(@PathVariable Integer mainId){
+		MessMain messMain =
+				messMainService.getMessMainById(mainId);
+		return ResponseDTO.createBySuccess(messMain);
+	}
 	/**
 	 * 菜单首页
 	 * @param mainId
