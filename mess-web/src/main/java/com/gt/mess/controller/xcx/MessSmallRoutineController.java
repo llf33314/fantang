@@ -32,6 +32,7 @@ import com.gt.mess.properties.FtpProperties;
 import com.gt.mess.properties.WxmpApiProperties;
 import com.gt.mess.util.*;
 import com.gt.util.entity.result.pay.WxPayOrder;
+import io.swagger.annotations.Api;
 import org.apache.log4j.Logger;
 import org.apache.velocity.texen.util.PropertiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,7 @@ import com.gt.mess.service.MessTopUpOrderService;
  * @author ZengWenXiang
  * @QQ 307848200
  */
+@Api(description = "食堂小程序API", hidden = true)
 @Controller
 @RequestMapping(value = "messSmallRoutine")
 public class MessSmallRoutineController {

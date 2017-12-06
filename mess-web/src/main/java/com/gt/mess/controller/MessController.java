@@ -11,6 +11,7 @@ import com.gt.mess.exception.BaseException;
 import com.gt.mess.properties.WxmpApiProperties;
 import com.gt.mess.service.*;
 import com.gt.mess.util.CommonUtil;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,7 @@ import java.util.Map;
  * @author ZengWenXiang
  * @QQ 307848200
  */
+@Api(description = "食堂后台")
 @Controller
 @RequestMapping(value = "mess")
 public class MessController {

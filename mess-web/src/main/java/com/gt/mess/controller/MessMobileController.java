@@ -13,6 +13,7 @@ import com.gt.mess.exception.BaseException;
 import com.gt.mess.properties.WxmpApiProperties;
 import com.gt.mess.service.*;
 import com.gt.mess.util.*;
+import io.swagger.annotations.Api;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,6 +38,7 @@ import java.util.*;
  * @author ZengWenXiang
  * @QQ 307848200
  */
+@Api(description = "食堂手机端", hidden = true)
 @Controller
 @RequestMapping(value = "messMobile")
 public class MessMobileController {
