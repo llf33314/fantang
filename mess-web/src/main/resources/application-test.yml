@@ -75,7 +75,7 @@ spring:
 ############################# 测试环境配置 #############################
 ### 设置 Redis session 共享
 redisSession:
-  domainName: .yifriend.com.cn
+  domainName: .deeptel.com.cn
   cookiePath: /
   cookieName: WXMPJSESSIONID
 
@@ -87,9 +87,9 @@ swagger:
 mess:
   ftp:
    #图片的存放路径
-   imagePath: D:/apache-tomcat-7.0.68/webapps/upload
+   imagePath: /home/server/project/staticSource/upload/image
    #资源访问路径
-   imageAccess: http://127.0.0.1:8080/upload/
+   imageAccess: http://maint.deeptel.com.cn/upload/
    #图片资源ftp ip
    staticSourceFtpIp: 183.47.242.3
    #图片资源ftp 端口
@@ -99,9 +99,9 @@ mess:
    #图片资源ftp 密码
    staticSourceFtpPwd: gt12345611
   wxmp_api:
-   adminUrl: http://192.168.3.44:8080/
+   adminUrl: https://mess.deeptel.com.cn/
    #wxmp项目的域名
-   homeUrl: http://hz1.yifriend.net/
+   homeUrl: https://deeptel.com.cn/
    #会员
    memberHomeUrl: https://member.deeptel.com.cn/
    #会员密钥
@@ -112,7 +112,5 @@ mess:
    redisName: 'mess:'
 
 # debug: true
-
-# 会员接口参数设置
 
 

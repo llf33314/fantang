@@ -12,6 +12,7 @@ import com.gt.mess.exception.ResponseEntityException;
 import com.gt.mess.properties.WxmpApiProperties;
 import com.gt.mess.service.*;
 import com.gt.mess.util.*;
+import io.swagger.annotations.Api;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,6 +30,7 @@ import java.util.*;
  * @author ZengWenXiang
  * @QQ 307848200
  */
+@Api(description = "食堂手机端",hidden = true)
 @RestController
 @RequestMapping(value = "messMobile")
 public class MessMobileController {
@@ -121,8 +123,11 @@ public class MessMobileController {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			JSONObject jsonData = new JSONObject();
+			jsonData.put("mainId",messMain.getId());
+			jsonData.put("busId",messMain.getBusId());
 			if(0 != data)
-				return ResponseDTO.createBySuccess();
+				return ResponseDTO.createBySuccess(jsonData);
 			else
 				return ResponseDTO.createByError();
 		}else{
@@ -191,6 +196,31 @@ public class MessMobileController {
 				messMainService.getMessMainById(mainId);
 		return ResponseDTO.createBySuccess(messMain);
 	}
+
+	/**
+	 * 根据busId获取主表信息
+	 * @param busId
+	 * @return
+	 */
+	@RequestMapping("/{busId}/79B4DE7C/getMessMainByBusId")
+	public ResponseDTO getMessMainByBusId(@PathVariable Integer busId){
+		MessMain messMain =
+				messMainService.getMessMainByBusId(busId);
+		return ResponseDTO.createBySuccess(messMain);
+	}
+
+	/**
+	 * 根据cardId获取饭卡信息
+	 * @param cardId
+	 * @return
+	 */
+	@RequestMapping("/{cardId}/79B4DE7C/getMessCardById")
+	public ResponseDTO getMessCardById(@PathVariable Integer cardId){
+		MessCard messCard =
+				messCardService.getMessCardById(cardId);
+		return ResponseDTO.createBySuccess(messCard);
+	}
+
 	/**
 	 * 菜单首页
 	 * @param mainId
@@ -307,14 +337,15 @@ public class MessMobileController {
 	 * @param response
 	 */
 	@RequestMapping(value = "{mainId}/{cardId}/{mealCode}/79B4DE7C/getMessUrltoQRcode")
-	public void getMessUrltoQRcode(HttpServletResponse response,
+	public ResponseDTO getMessUrltoQRcode(HttpServletResponse response,
 								   @PathVariable Integer mainId,@PathVariable Integer cardId,@PathVariable String mealCode) {
 		try {
 			MessMain messMain = messMainService.getMessMainById(mainId);
 			String filePath =wxmpApiProperties.getAdminUrl();
-			QRcodeKit.buildQRcode(filePath+"messReception/"+messMain.getBusId()+"/"+cardId+"/"+ mealCode +"/79B4DE7C/wirteOff.do", 300, 300, response);
+			return ResponseDTO.createBySuccess(filePath+"messReception/"+messMain.getBusId()+"/"+cardId+"/"+ mealCode +"/79B4DE7C/wirteOff.do");
+//			QRcodeKit.buildQRcode(filePath+"messReception/"+messMain.getBusId()+"/"+cardId+"/"+ mealCode +"/79B4DE7C/wirteOff.do", 300, 300, response);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ResponseEntityException(ResponseEnums.SYSTEM_ERROR);
 		}
 	}
 
@@ -641,7 +672,7 @@ public class MessMobileController {
 			mapId.put("mainId", mainId);
 			Page<MessMealOrder> messMealOrders =
 					messMealOrderService.getMessMealOrderPageByCardIdAndMainId(page,mapId,10);
-			if(messMealOrders.getTotal() < page.getTotal()){
+			if(messMealOrders.getCurrent() < page.getCurrent()){
 				return ResponseDTO.createBySuccess("-1");
 			}
 			if(messMealOrders != null){
@@ -709,10 +740,10 @@ public class MessMobileController {
 			mapId.put("mainId", mainId);
 			Page<MessConsumerDetail> messConsumerDetails =
 					messConsumerDetailService.getMessConsumerDetailPageByCardIdAndMainId(page, mapId, 10);
-			if(messConsumerDetails.getTotal() < page.getTotal()){
+			if(messConsumerDetails.getCurrent() < page.getCurrent()){
 				return ResponseDTO.createBySuccess("-1");
 			}
-			if(messConsumerDetails != null && messConsumerDetails.getTotal() > 0){
+			if(messConsumerDetails != null && messConsumerDetails.getCurrent() > 0){
 				return ResponseDTO.createBySuccess(messConsumerDetails.getRecords());
 			}else{
 				return ResponseDTO.createByError();
@@ -1152,7 +1183,7 @@ public class MessMobileController {
 	 * @return
 	 */
 //	@SysLogAnnotation(description="微食堂 加餐核销(电脑核销)",op_function="3")//保存2，修改3，删除4
-	@RequestMapping(value = "{mainId}/{fdId}/{memberId}/79B4DE7C/addFoodCancel", method = RequestMethod.POST)
+	@RequestMapping(value = "{mainId}/{fdId}/{memberId}/79B4DE7C/addFoodCancel", method = RequestMethod.GET)
 	public ResponseDTO addFoodCancel(@PathVariable Integer mainId,
 									 @PathVariable Integer fdId,
 									 @PathVariable Integer memberId) {
@@ -1219,15 +1250,16 @@ public class MessMobileController {
 	 * @param memberId
 	 */
 	@RequestMapping(value = "{mainId}/{fdId}/{memberId}/79B4DE7C/getAddFoodQRcode")
-	public void getAddFoodQRcode(HttpServletResponse response,
+	public ResponseDTO getAddFoodQRcode(HttpServletResponse response,
 								 @PathVariable Integer mainId,
 								 @PathVariable Integer fdId,
 								 @PathVariable Integer memberId) {
 		try {
 			String filePath =wxmpApiProperties.getAdminUrl();
-			QRcodeKit.buildQRcode(filePath+"messMobile/"+ mainId +"/"+ fdId +"/"+ memberId +"/79B4DE7C/addFoodCancel.do", 300, 300, response);
+			return ResponseDTO.createBySuccess(filePath+"messMobile/"+ mainId +"/"+ fdId +"/"+ memberId +"/79B4DE7C/addFoodCancel.do");
+			//QRcodeKit.buildQRcode(filePath+"messMobile/"+ mainId +"/"+ fdId +"/"+ memberId +"/79B4DE7C/addFoodCancel.do", 300, 300, response);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new BaseException("获取失败");
 		}
 	}
 
