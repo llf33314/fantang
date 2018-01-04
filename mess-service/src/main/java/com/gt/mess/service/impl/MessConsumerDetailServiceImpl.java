@@ -20,7 +20,7 @@ public class MessConsumerDetailServiceImpl implements MessConsumerDetailService{
 	public Page<MessConsumerDetail> getMessConsumerDetailPageByCardIdAndMainId(Page<MessConsumerDetail> page,Map<String,Integer> mapId,Integer nums) {
 		// TODO Auto-generated method stub
 		try {
-			page.setRecords( messConsumerDetailMapper.getMessConsumerDetailPageByCardIdAndMainId(mapId) );
+			page.setRecords( messConsumerDetailMapper.getMessConsumerDetailPageByCardIdAndMainId(page,mapId) );
 			return page;
 		} catch (Exception e) {
 			e.printStackTrace();

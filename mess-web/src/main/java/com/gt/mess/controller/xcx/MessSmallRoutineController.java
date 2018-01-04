@@ -466,7 +466,12 @@ public class MessSmallRoutineController {
 			mapId.put("mainId", mainId);
 			MessCard messCard = messCardService.getMessCardByMainIdAndMemberId(mapId);
 			MessBasisSet messBasisSet = null;
-			Member member =  JSONObject.toJavaObject(JSONObject.parseObject(redisCacheUtil.get(wxmpApiProperties.getRedisName()+"messCard_"+messCard.getId()).toString()),Member.class);
+			Object om = redisCacheUtil.get(wxmpApiProperties.getRedisName()+"messCard_"+messCard.getId());
+			Member member = null;
+			if(null != om){
+				 member =  JSONObject.toJavaObject(JSONObject.parseObject(om.toString()),Member.class);
+			}
+
 			messBasisSet = messBasisSetService.getMessBasisSetByMainId(mainId);
 			if(messCard.getGroupId() != null){
 				MessCardGroup messCardGroup =
@@ -1001,7 +1006,7 @@ public class MessSmallRoutineController {
 			mapId.put("mainId", mainId);
 			Page<MessMealOrder> messMealOrders =
 					messMealOrderService.getMessMealOrderPageByCardIdAndMainId(page,mapId,10);
-			if(messMealOrders.getCurrent() < page.getCurrent()){
+			if(messMealOrders.getPages() < page.getCurrent()){
 				out.write("-1");
 				return;
 			}
@@ -1129,7 +1134,7 @@ public class MessSmallRoutineController {
 			mapId.put("mainId", mainId);
 			Page<MessConsumerDetail> messConsumerDetails =
 					messConsumerDetailService.getMessConsumerDetailPageByCardIdAndMainId(page, mapId, 20);
-			if(messConsumerDetails.getCurrent() < page.getCurrent()){
+			if(messConsumerDetails.getPages() < page.getCurrent()){
 				out.write("-1");
 				return;
 			}

@@ -1,9 +1,11 @@
 package com.gt.mess.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.activerecord.Model;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.baomidou.mybatisplus.enums.IdType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -40,6 +42,8 @@ public class MessMealOrder extends Model<MessMealOrder> {
 
     private String cardCode;
 
+    @JSONField(format = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date time;
 
     private Integer mealType;
@@ -49,7 +53,9 @@ public class MessMealOrder extends Model<MessMealOrder> {
     private Integer status;
 
     private Double money;
-    
+
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date orderTime;
     
     private String mealCode;

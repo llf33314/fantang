@@ -1,7 +1,9 @@
 package com.gt.mess.dao;
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.plugins.pagination.Pagination;
 import com.gt.mess.entity.MessConsumerDetail;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -17,5 +19,5 @@ public interface MessConsumerDetailMapper extends BaseMapper<MessConsumerDetail>
 
     int updateByPrimaryKey(MessConsumerDetail record);
     
-    List<MessConsumerDetail> getMessConsumerDetailPageByCardIdAndMainId(Map<String,Integer> mapId);
+    List<MessConsumerDetail> getMessConsumerDetailPageByCardIdAndMainId(@Param( "page" ) Pagination page, Map<String,Integer> mapId);
 }

@@ -102,7 +102,7 @@ public class MessMobileController {
 //	@SysLogAnnotation(description="微食堂 微食堂支付完成跳转",op_function="3")//保存2，修改3，删除4
 	@RequestMapping("/79B4DE7C/wxMessPayOrder")
 	public ResponseDTO wxMessPayOrder(HttpServletRequest request,HttpServletResponse response,
-									  @RequestParam Map<String, Object> params){
+									  @RequestBody Map<String, Object> params){
 		MessTopUpOrder messTopUpOrder =
 				messTopUpOrderService.getMessTopUpOrderByOrderNo(params.get("orderNo").toString());
 		MessMain messMain = messMainService.getMessMainById(messTopUpOrder.getMainId());
@@ -196,6 +196,18 @@ public class MessMobileController {
 				messMainService.getMessMainById(mainId);
 		return ResponseDTO.createBySuccess(messMain);
 	}
+
+//	/**
+//	 * 根据mainId获取主表信息
+//	 * @param params
+//	 * @return
+//	 */
+//	@RequestMapping("/79B4DE7C/getMessMainById")
+//	public ResponseDTO getMessMainById(@RequestBody Map<String,Object> params){
+//		MessMain messMain =
+//				messMainService.getMessMainById(Integer.valueOf(params.get("mainId").toString()));
+//		return ResponseDTO.createBySuccess(messMain);
+//	}
 
 	/**
 	 * 根据busId获取主表信息
@@ -487,7 +499,7 @@ public class MessMobileController {
 	 */
 //	@SysLogAnnotation(description="微食堂 绑定饭卡",op_function="3")//保存2，修改3，删除4
 	@RequestMapping(value = "/79B4DE7C/bindingCard")
-	public ResponseDTO bindingCard(@RequestParam Map <String,Object> params) {
+	public ResponseDTO bindingCard(@RequestBody Map <String,Object> params) {
 		try {
 			return ResponseDTO.createBySuccess(messCardService.bindingCard(params));
 		} catch (Exception e) {
@@ -503,9 +515,9 @@ public class MessMobileController {
 	 * @return
 	 */
 	@RequestMapping("/79B4DE7C/addFood")
-	public ResponseDTO addFoodL(@RequestParam Integer mainId,
-								@RequestParam Integer fdId,
-								@RequestParam Integer memberId){
+	public ResponseDTO addFoodL(@RequestBody Integer mainId,
+								@RequestBody Integer fdId,
+								@RequestBody Integer memberId){
 		JSONObject data = new JSONObject();
 		try {
 			Map<String,Integer> mapId = new HashMap<String, Integer>();
@@ -581,7 +593,7 @@ public class MessMobileController {
 	 */
 //	@SysLogAnnotation(description="微食堂 购买饭票",op_function="3")//保存2，修改3，删除4
 	@RequestMapping(value = "79B4DE7C/buyTicket")
-	public ResponseDTO buyTicket(@RequestParam Map <String,Object> params) {
+	public ResponseDTO buyTicket(@RequestBody Map <String,Object> params) {
 		try {
 			return ResponseDTO.createBySuccess(messBuyTicketOrderService.buyTicket(params));
 		} catch (Exception e) {
@@ -643,7 +655,7 @@ public class MessMobileController {
 			}
 			Page<MessMealOrder> messMealOrders =
 					messMealOrderService.getMessMealOrderPageByCardIdAndMainId(page,mapId,10);
-			data.put("messMealOrders", messMealOrders);
+			data.put("messMealOrders", messMealOrders.getRecords());
 			data.put("mainId", mainId);
 			data.put("cardId", cardId);
 			String datetime = DateTimeKit.format(new Date(), DateTimeKit.DEFAULT_DATE_FORMAT);
@@ -672,11 +684,11 @@ public class MessMobileController {
 			mapId.put("mainId", mainId);
 			Page<MessMealOrder> messMealOrders =
 					messMealOrderService.getMessMealOrderPageByCardIdAndMainId(page,mapId,10);
-			if(messMealOrders.getCurrent() < page.getCurrent()){
+			if(messMealOrders.getPages() < page.getCurrent()){
 				return ResponseDTO.createBySuccess("-1");
 			}
 			if(messMealOrders != null){
-				return ResponseDTO.createBySuccess(JSON.toJSONString(messMealOrders).toString());
+				return ResponseDTO.createBySuccess(JSON.toJSONString(messMealOrders.getRecords()).toString());
 			}else{
 				return ResponseDTO.createByError();
 			}
@@ -691,8 +703,8 @@ public class MessMobileController {
 	 * @return
 	 */
 //	@SysLogAnnotation(description="微食堂 取消订单",op_function="3")//保存2，修改3，删除4
-	@RequestMapping(value = "/79B4DE7C/cancelOrder")
-	public ResponseDTO cancelOrder(@RequestParam Integer orderId) {
+	@RequestMapping(value = "{orderId}/79B4DE7C/cancelOrder")
+	public ResponseDTO cancelOrder(@PathVariable Integer orderId) {
 		try {
 			return ResponseDTO.createBySuccess(messMealOrderService.cancelOrder(orderId));
 		} catch (Exception e) {
@@ -716,7 +728,7 @@ public class MessMobileController {
 			mapId.put("mainId", mainId);
 			Page<MessConsumerDetail> messConsumerDetails =
 					messConsumerDetailService.getMessConsumerDetailPageByCardIdAndMainId(page, mapId, 10);
-			data.put("messConsumerDetails", messConsumerDetails);
+			data.put("messConsumerDetails", messConsumerDetails.getRecords());
 			data.put("mainId",mainId);
 			data.put("cardId", cardId);
 			return ResponseDTO.createBySuccess(data);
@@ -740,7 +752,7 @@ public class MessMobileController {
 			mapId.put("mainId", mainId);
 			Page<MessConsumerDetail> messConsumerDetails =
 					messConsumerDetailService.getMessConsumerDetailPageByCardIdAndMainId(page, mapId, 10);
-			if(messConsumerDetails.getCurrent() < page.getCurrent()){
+			if(messConsumerDetails.getPages() < page.getCurrent()){
 				return ResponseDTO.createBySuccess("-1");
 			}
 			if(messConsumerDetails != null && messConsumerDetails.getCurrent() > 0){
@@ -909,7 +921,7 @@ public class MessMobileController {
 	 * @return
 	 */
 	@RequestMapping("/79B4DE7C/addOrder")
-	public ResponseDTO addOrder(@RequestParam Map <String,Object> params){
+	public ResponseDTO addOrder(@RequestBody Map <String,Object> params){
 		JSONObject data = new JSONObject();
 		try {
 			Integer cardId = Integer.valueOf(params.get("cardId").toString());
@@ -918,7 +930,7 @@ public class MessMobileController {
 			params.put("cardId", messCard.getId());
 			List<MessMealOrder> messMealOrders =
 					messMealOrderService.getBookMessMealOrderByToDay(params);
-			MessBasisSet messBasisSet = messBasisSetService.getMessBasisSetByMainId(messCard.getId());
+			MessBasisSet messBasisSet = messBasisSetService.getMessBasisSetByMainId(messCard.getMainId());
 			List<MessNotice> messNotices = messNoticeService.getMessNoticeListByMainId(messCard.getMainId(),1);
 			data.put("messNotices", messNotices);
 			if(params.get("time").equals(DateTimeKit.getDateTime(new Date(), "yyyy-M-d"))){
@@ -928,7 +940,7 @@ public class MessMobileController {
 			}
 			data.put("param", params);
 			data.put("messBasisSet", messBasisSet);
-			data.put("mainId", messCard.getId());
+			data.put("mainId", messCard.getMainId());
 			data.put("cardId", cardId);
 			data.put("messCard", messCard);
 			data.put("messMealOrders", messMealOrders);
@@ -948,7 +960,7 @@ public class MessMobileController {
 //	@SysLogAnnotation(description="微食堂 保存或更新追加订单",op_function="3")//保存2，修改3，删除4
 	@RequestMapping(value = "79B4DE7C/saveOrUpdateAddOrder")
 	public ResponseDTO saveOrUpdateAddOrder(HttpServletRequest request, HttpServletResponse response,
-											@RequestParam Map <String,Object> params) {
+											@RequestBody Map <String,Object> params) {
 		try {
 			return ResponseDTO.createBySuccess(messMealOrderService.saveOrUpdateAddOrder(params));
 		} catch (BaseException be){
@@ -969,7 +981,7 @@ public class MessMobileController {
 	 */
 //	@SysLogAnnotation(description="微食堂 删除未选餐",op_function="3")//保存2，修改3，删除4
 	@RequestMapping(value = "79B4DE7C/delNotCMealOrder")
-	public ResponseDTO delNotCMealOrder(@RequestParam Map <String,Object> params) {
+	public ResponseDTO delNotCMealOrder(@RequestBody Map <String,Object> params) {
 		try {
 			return ResponseDTO.createBySuccess(messMealOrderService.delNotCMealOrder(params));
 		} catch (Exception e) {
@@ -984,7 +996,7 @@ public class MessMobileController {
 	 */
 //	@SysLogAnnotation(description="微食堂 保存订餐",op_function="2")//保存2，修改3，删除4
 	@RequestMapping(value = "79B4DE7C/saveMealOrder")
-	public ResponseDTO saveMealOrder(@RequestParam Map <String,Object> params) {
+	public ResponseDTO saveMealOrder(@RequestBody Map <String,Object> params) {
 		try {
 			return ResponseDTO.createBySuccess(messMealOrderService.saveMealOrder(params));
 		} catch (Exception e) {
@@ -1017,7 +1029,9 @@ public class MessMobileController {
 			data.put("mainId", messCard.getMainId());
 			data.put("cardId", cardId);
 			data.put("messCard", messCard);
-			data.put("messMealOrders", messMealOrders);
+			Page<MessMealOrder> page = new Page<>();
+			page.setRecords(messMealOrders);
+			data.put("messMealOrders", page.getRecords());
 			return ResponseDTO.createBySuccess(data);
 		} catch (Exception e) {
 			throw new ResponseEntityException(ResponseEnums.SYSTEM_ERROR);
@@ -1031,7 +1045,7 @@ public class MessMobileController {
 	 */
 //	@SysLogAnnotation(description="微食堂 保存订餐（选择早晚餐）",op_function="3")//保存2，修改3，删除4
 	@RequestMapping(value = "79B4DE7C/saveChooseMealOrder")
-	public ResponseDTO saveChooseMealOrder(@RequestParam Map <String,Object> params) {
+	public ResponseDTO saveChooseMealOrder(@RequestBody Map <String,Object> params) {
 		try {
 			return ResponseDTO.createBySuccess(messMealOrderService.saveChooseMealOrder(params));
 		} catch (BaseException be){
@@ -1093,7 +1107,7 @@ public class MessMobileController {
 	 */
 //	@SysLogAnnotation(description="微食堂 饭卡充值支付",op_function="3")//保存2，修改3，删除4
 	@RequestMapping(value = "/79B4DE7C/topUpPay")
-	public ResponseDTO topUpPay(@RequestParam Map <String,Object> params) {
+	public ResponseDTO topUpPay(@RequestBody Map <String,Object> params) {
 		try {
 			return ResponseDTO.createBySuccess(messTopUpOrderService.topUpPay(params));
 		} catch (Exception e) {
@@ -1108,7 +1122,7 @@ public class MessMobileController {
 	 * @throws Exception
 	 */
 	@RequestMapping("/79B4DE7C/authority")
-	public ResponseDTO authority(@RequestParam Map<String, Object> params)
+	public ResponseDTO authority(@RequestBody Map<String, Object> params)
 			throws Exception {
 		try {
 			Integer mainId = Integer.valueOf(params.get("mainId").toString());
@@ -1168,7 +1182,7 @@ public class MessMobileController {
 			data.put("messCard", messCard);
 			data.put("messNotices", messNotices);
 			data.put("messBasisSet", messBasisSet);
-			data.put("messAddFoods", messAddFoods);
+			data.put("messAddFoods", messAddFoods.getRecords());
 			return ResponseDTO.createBySuccess(data);
 		} catch (Exception e) {
 			throw new ResponseEntityException(ResponseEnums.SYSTEM_ERROR);
@@ -1183,7 +1197,7 @@ public class MessMobileController {
 	 * @return
 	 */
 //	@SysLogAnnotation(description="微食堂 加餐核销(电脑核销)",op_function="3")//保存2，修改3，删除4
-	@RequestMapping(value = "{mainId}/{fdId}/{memberId}/79B4DE7C/addFoodCancel", method = RequestMethod.GET)
+	@RequestMapping(value = "{mainId}/{fdId}/{memberId}/79B4DE7C/addFoodCancel", method = RequestMethod.POST)
 	public ResponseDTO addFoodCancel(@PathVariable Integer mainId,
 									 @PathVariable Integer fdId,
 									 @PathVariable Integer memberId) {

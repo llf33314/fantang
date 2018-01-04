@@ -1,7 +1,9 @@
 package com.gt.mess.dao;
 
 import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.baomidou.mybatisplus.plugins.pagination.Pagination;
 import com.gt.mess.entity.MessMealOrder;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +29,7 @@ public interface MessMealOrderMapper extends BaseMapper<MessMealOrder> {
     
     List<MessMealOrder> getMessMealOrderByMealCode(String mealCode);
     
-    List<MessMealOrder> getMessMealOrderPageByCardIdAndMainId(Map<String,Integer> mapId);
+    List<MessMealOrder> getMessMealOrderPageByCardIdAndMainId(@Param( "page" ) Pagination page, Map<String,Integer> mapId);
     
     List<MessMealOrder> getBookedMessMealOrder(Map<String, Integer> mapId);
     

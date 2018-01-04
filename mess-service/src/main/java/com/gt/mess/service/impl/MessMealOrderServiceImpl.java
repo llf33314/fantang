@@ -446,7 +446,7 @@ public class MessMealOrderServiceImpl implements MessMealOrderService{
 	public Page<MessMealOrder> getMessMealOrderPageByCardIdAndMainId(Page<MessMealOrder> page,Map<String, Integer> mapId,Integer nums) {
 		// TODO Auto-generated method stub
 		try {
-			page.setRecords( messMealOrderMapper.getMessMealOrderPageByCardIdAndMainId(mapId) );
+			page.setRecords( messMealOrderMapper.getMessMealOrderPageByCardIdAndMainId(page,mapId) );
 			return page;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -471,8 +471,8 @@ public class MessMealOrderServiceImpl implements MessMealOrderService{
 		// TODO Auto-generated method stub
 		MessCard messCard = 
 				messCardMapper.selectByPrimaryKey(Integer.valueOf(params.get("cardId").toString()));
-		String jedisDays = redisCacheUtil.get("messCarId:"+messCard.getId()).toString();
-		if(jedisDays != null){
+		if(redisCacheUtil.get("messCarId:"+messCard.getId()) != null){
+			String jedisDays = redisCacheUtil.get("messCarId:"+messCard.getId()).toString();
 			if(jedisDays.equals(params.get("days").toString())){
 				return 1;
 			}

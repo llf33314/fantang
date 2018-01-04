@@ -23,14 +23,14 @@ public class ServletConfig {
 
     @Bean
     public EmbeddedServletContainerCustomizer containerCustomizer() {
-	return new EmbeddedServletContainerCustomizer() {
-	    @Override
-	    public void customize(ConfigurableEmbeddedServletContainer container) {
-		ErrorPage error401Page = new ErrorPage(HttpStatus.UNAUTHORIZED, UNAUTHORIZED);
-		ErrorPage error404Page = new ErrorPage(HttpStatus.NOT_FOUND, NOT_FOUND);
-		ErrorPage error500Page = new ErrorPage(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR);
-		container.addErrorPages(error401Page, error404Page, error500Page);
-	    }
-	};
+		return new EmbeddedServletContainerCustomizer() {
+			@Override
+			public void customize(ConfigurableEmbeddedServletContainer container) {
+			ErrorPage error401Page = new ErrorPage(HttpStatus.UNAUTHORIZED, UNAUTHORIZED);
+			ErrorPage error404Page = new ErrorPage(HttpStatus.NOT_FOUND, NOT_FOUND);
+			ErrorPage error500Page = new ErrorPage(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR);
+			container.addErrorPages(error401Page, error404Page, error500Page);
+			}
+		};
     }
 }
