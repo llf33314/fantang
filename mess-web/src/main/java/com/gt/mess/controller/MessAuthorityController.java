@@ -90,14 +90,14 @@ public class MessAuthorityController {
 	}
 
 	/**
-	 * 微饭票重置授权信息并删除、更新授权人员
+	 * 饭堂重置授权信息并删除、更新授权人员
 	 * @param request
 	 * @param memberId
 	 * @param mainId
 	 * @return
 	 * @throws IOException
 	 */
-	@ApiOperation(value = "微饭票重置授权信息并删除、更新授权人员",notes = "微饭票重置授权信息并删除、更新授权人员",httpMethod = "POST")
+	@ApiOperation(value = "饭堂重置授权信息并删除、更新授权人员",notes = "饭堂重置授权信息并删除、更新授权人员",httpMethod = "POST")
 	@RequestMapping(value = "/delAuthorityMembers", method = RequestMethod.POST)
 	public ResponseDTO delAuthorityMembers(HttpServletRequest request,
 										   @ApiParam(name = "memberId", value = "粉丝ID", required = true)
@@ -114,7 +114,7 @@ public class MessAuthorityController {
 			return messAuthorityMemberService.delAuthorityMembers(params);
 		} catch (Exception e) {
 			// TODO: handle exception
-			throw new BaseException("微饭票重置授权信息并删除、更新授权人员失败");
+			throw new BaseException("饭堂重置授权信息并删除、更新授权人员失败");
 		}
 	}
 }

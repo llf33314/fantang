@@ -1,5 +1,5 @@
 /**
- * Vo 展示数据实体
+ * Vo 校验层
  *
  * @author zengwx
  * @version 1.0.0

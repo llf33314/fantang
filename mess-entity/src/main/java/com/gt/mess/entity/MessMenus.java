@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 
 /**
- * <p>微饭票菜单表</p>
+ * <p>饭堂菜单表</p>
  *
  * @author zengwx
  * @since 2017-11-17

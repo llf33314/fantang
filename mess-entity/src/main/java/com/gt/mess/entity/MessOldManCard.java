@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * <p>微饭票老人卡</p>
+ * <p>饭堂老人卡</p>
  *
  * @author zengwx
  * @since 2017-11-17
