@@ -291,7 +291,7 @@ public class MessReceptionController {
 	@ApiOperation(value = "核销记录(根据条件查询)",notes = "核销记录(根据条件查询)",httpMethod = "POST")
 	@RequestMapping(value = "/selectCancelRecord", method = RequestMethod.POST)
 	public ResponseDTO selectCancelRecord(HttpServletRequest request,
-										  @Valid @ModelAttribute SelectCancelRecordVo saveVo) {
+										  @Valid @RequestBody SelectCancelRecordVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
@@ -354,7 +354,7 @@ public class MessReceptionController {
 	@ApiOperation(value = "根据条件导出核销记录",notes = "根据条件导出核销记录",httpMethod = "POST")
 	@RequestMapping(value = "/exports", method = RequestMethod.POST)
 	public void exports(HttpServletRequest request,
-			HttpServletResponse response,@Valid @ModelAttribute SelectCancelRecordVo saveVo) {
+			HttpServletResponse response,@Valid @RequestBody SelectCancelRecordVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain = messMainService.getMessMainByBusId(busUser.getId());
@@ -621,7 +621,7 @@ public class MessReceptionController {
 	@ApiOperation(value = "加餐核销订单（搜索）",notes = "搜索加餐核销订单",httpMethod = "POST")
 	@RequestMapping(value = "/selectAddFoodOrder", method = RequestMethod.POST)
 	public ResponseDTO selectAddFoodOrder(HttpServletRequest request,
-			Page<MessAddFoodOrder> page,@Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
+			Page<MessAddFoodOrder> page,@Valid @RequestBody SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
@@ -653,7 +653,7 @@ public class MessReceptionController {
 	@ApiOperation(value = "导出加餐核销记录",notes = "导出加餐核销记录",httpMethod = "GET")
 	@RequestMapping(value = "/exportsAddFoodOrder", method = RequestMethod.GET)
 	public void exportsAddFoodOrder(HttpServletRequest request,
-			HttpServletResponse response,@Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
+			HttpServletResponse response,@Valid @RequestBody SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =

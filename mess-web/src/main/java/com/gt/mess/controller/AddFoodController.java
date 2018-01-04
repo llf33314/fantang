@@ -65,15 +65,15 @@ public class AddFoodController {
     @ApiOperation(value = "保存或更新加菜表",notes = "保存或更新加菜表",httpMethod = "POST")
     @RequestMapping(value = "/saveOrUpdateAddFood", method= RequestMethod.POST)
     public ResponseDTO saveOrUpdateAddFood(@ApiParam(name = "saveType", value = "save:为保存，否则为更新", required = true)
-                                               @RequestParam String saveType,
+                                           @RequestParam String saveType,
                                            @ApiParam(name = "mainId", value = "主表ID", required = true)
-                                               @RequestParam Integer mainId,
-                                           @ApiParam(name = "id", value = "加菜表ID")
-                                                       Integer id,
+                                           @RequestParam Integer mainId,
+                                           @ApiParam(name = "id", value = "加菜表ID（新增时可以为空）")
+                                           Integer id,
                                            @ApiParam(name = "comment", value = "备注", required = true)
-                                               @RequestParam String comment,
+                                           @RequestParam String comment,
                                            @ApiParam(name = "price", value = "金额", required = true)
-                                               @RequestParam Double price) {
+                                           @RequestParam Double price) {
         try {
             int data = messAddFoodService.saveOrUpdateAddFood(saveType,mainId,id,comment,price);
             if(data == 1)

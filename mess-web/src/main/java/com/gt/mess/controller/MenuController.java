@@ -79,7 +79,7 @@ public class MenuController {
      */
     @ApiOperation(value = "保存或更新菜品",notes = "保存或更新菜品",httpMethod = "POST")
     @RequestMapping(value = "/saveOrUpdateMenu", method = RequestMethod.POST)
-    public ResponseDTO saveOrUpdateMenu(@Valid @ModelAttribute SaveOrUpdateMenuVo saveVo) {
+    public ResponseDTO saveOrUpdateMenu(@Valid @RequestBody SaveOrUpdateMenuVo saveVo) {
         try {
             int data = messMenusService.saveOrUpdateMenu(saveVo);
             if(data == 1)

@@ -77,7 +77,7 @@ public class NoticeController {
      */
     @ApiOperation(value = "保存或更新公告",notes = "保存或更新公告",httpMethod = "POST")
     @RequestMapping(value = "/saveOrUpdateNotice", method = RequestMethod.POST)
-    public ResponseDTO saveOrUpdateNotice(HttpServletRequest request,@Valid @ModelAttribute SaveOrUpdateNoticeVo saveVo) {
+    public ResponseDTO saveOrUpdateNotice(HttpServletRequest request,@Valid @RequestBody SaveOrUpdateNoticeVo saveVo) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =

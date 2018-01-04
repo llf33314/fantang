@@ -89,7 +89,7 @@ public class BasisSetController {
      */
     @ApiOperation(value = "保存或更新基础设置",notes = "保存或更新基础设置",httpMethod = "POST")
     @RequestMapping(value = "/saveOrUpdateBasisSet", method= RequestMethod.POST)
-    public ResponseDTO saveOrUpdateBasisSet(@Valid @ModelAttribute SaveOrUpdateBasisSetVo setVo) {
+    public ResponseDTO saveOrUpdateBasisSet(@Valid @RequestBody SaveOrUpdateBasisSetVo setVo) {
         try {
             int data = messBasisSetService.saveOrUpdateBasisSet(setVo);
             if(data == 1)

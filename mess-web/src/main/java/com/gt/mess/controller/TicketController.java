@@ -314,7 +314,7 @@ public class TicketController {
      */
     @ApiOperation(value = "保存或更新饭卡",notes = "保存或更新饭卡",httpMethod = "POST")
     @RequestMapping(value = "/saveOrUpdateMessCard", method = RequestMethod.POST)
-    public ResponseDTO saveOrUpdateMessCard(HttpServletRequest request, @Valid @ModelAttribute SaveOrUpdateMessCardVo saveVo) {
+    public ResponseDTO saveOrUpdateMessCard(HttpServletRequest request, @Valid @RequestBody SaveOrUpdateMessCardVo saveVo) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =

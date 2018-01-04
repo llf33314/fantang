@@ -84,7 +84,7 @@ public class CardGroupController {
      */
     @ApiOperation(value = "保存或更新饭卡组",notes = "保存或更新饭卡组",httpMethod = "POST")
     @RequestMapping(value = "/saveOrUpdateCardGroup", method= RequestMethod.POST)
-    public ResponseDTO saveOrUpdateCardGroup(@Valid @ModelAttribute SaveOrUpdateCardGroupVo saveVo) {
+    public ResponseDTO saveOrUpdateCardGroup(@Valid @RequestBody SaveOrUpdateCardGroupVo saveVo) {
         try {
             int data = messCardGroupServcie.saveOrUpdateCardGroup(saveVo);
             if(data == 1)

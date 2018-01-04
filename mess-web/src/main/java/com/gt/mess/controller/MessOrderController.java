@@ -176,7 +176,7 @@ public class MessOrderController {
 	@ApiOperation(value = "订餐记录（根据条件搜索）",notes = "订餐记录（根据条件搜索）",httpMethod = "POST")
 	@RequestMapping(value = "/selectMealOrder", method= RequestMethod.POST)
 	public ResponseDTO selectMealOrder(HttpServletRequest request,
-									   Page<MessMealOrder> page,@Valid @ModelAttribute SelectMealOrderVo saveVo) {
+									   Page<MessMealOrder> page,@Valid @RequestBody SelectMealOrderVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
@@ -249,7 +249,7 @@ public class MessOrderController {
 	@ApiOperation(value = "订餐记录（根据条件搜索）",notes = "订餐记录（根据条件搜索）",httpMethod = "POST")
 	@RequestMapping(value = "/exportsMealOrder", method= RequestMethod.POST)
 	public void exportsMealOrder(HttpServletRequest request,HttpServletResponse response,
-								 @Valid @ModelAttribute SelectMealOrderVo saveVo) {
+								 @Valid @RequestBody SelectMealOrderVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
@@ -354,7 +354,7 @@ public class MessOrderController {
 	@RequestMapping(value = "/selectBuyTicketStatistics", method= RequestMethod.POST)
 	public ResponseDTO selectBuyTicketStatistics(HttpServletRequest request,
 												 Page<MessBuyTicketOrder> page,
-												 @Valid @ModelAttribute SelectBuyTicketVo saveVo) {
+												 @Valid @RequestBody SelectBuyTicketVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
@@ -388,7 +388,7 @@ public class MessOrderController {
 	@ApiOperation(value = "导出购票记录",notes = "导出购票记录",httpMethod = "POST")
 	@RequestMapping(value = "/exportsBuyTicket", method= RequestMethod.POST)
 	public void exportsBuyTicket(HttpServletRequest request,HttpServletResponse response,
-								 @Valid @ModelAttribute SelectBuyTicketVo saveVo) {
+								 @Valid @RequestBody SelectBuyTicketVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
@@ -457,7 +457,7 @@ public class MessOrderController {
 	@ApiOperation(value = "商家补助(根据条件查询)",notes = "商家补助(根据条件查询)",httpMethod = "POST")
 	@RequestMapping(value = "/selectSubsidyTicket", method= RequestMethod.POST)
 	public ResponseDTO selectSubsidyTicket(HttpServletRequest request,
-			Page<MessBuyTicketOrder> page,@Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
+			Page<MessBuyTicketOrder> page,@Valid @RequestBody SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
@@ -492,7 +492,7 @@ public class MessOrderController {
 	@ApiOperation(value = "导出补助记录",notes = "导出补助记录",httpMethod = "POST")
 	@RequestMapping(value = "/exportsSubsidyTicket", method= RequestMethod.POST)
 	public void exportsSubsidyTicket(HttpServletResponse response,HttpServletRequest request,
-									 @Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
+									 @Valid @RequestBody SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =
@@ -561,7 +561,7 @@ public class MessOrderController {
 	@ApiOperation(value = "充值记录(根据条件查询)",notes = "充值记录(根据条件查询)",httpMethod = "POST")
 	@RequestMapping(value = "/selectTopUpOrder", method= RequestMethod.POST)
 	public ResponseDTO selectTopUpOrder(HttpServletRequest request,
-			Page<MessTopUpOrder> page, @Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
+			Page<MessTopUpOrder> page, @Valid @RequestBody SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			JSONObject jsonData = new JSONObject();
 			BusUser busUser = SessionUtils.getLoginUser(request);
@@ -594,7 +594,7 @@ public class MessOrderController {
 	 */
 	@RequestMapping(value = "/exportsTopUpOrder")
 	public void exportsTopUpOrder(HttpServletRequest request,HttpServletResponse response,
-								  @Valid @ModelAttribute SelectMainIdDepIdCardCodeVo saveVo) {
+								  @Valid @RequestBody SelectMainIdDepIdCardCodeVo saveVo) {
 		try {
 			BusUser busUser = SessionUtils.getLoginUser(request);
 			MessMain messMain =

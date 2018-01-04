@@ -112,7 +112,7 @@ public class OldManCardController {
      */
     @ApiOperation(value = "保存或更新老人卡表",notes = "保存或更新老人卡表",httpMethod = "POST")
     @RequestMapping(value = "/saveOldManCard", method = RequestMethod.POST)
-    public ResponseDTO saveOldManCard(HttpServletRequest request, @Valid @ModelAttribute SaveOldManCardVo saveVo) {
+    public ResponseDTO saveOldManCard(HttpServletRequest request, @Valid @RequestBody SaveOldManCardVo saveVo) {
         try {
             BusUser busUser = SessionUtils.getLoginUser(request);
             MessMain messMain =
