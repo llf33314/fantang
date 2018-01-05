@@ -23,7 +23,7 @@ public class SaveOrUpdateCardGroupVo {
     private String setType;
 
     @ApiModelProperty(name = "id", value = "主键")
-    private Integer id;
+    private String id;
 
     @NotNull(message = "主表ID不能为空")
     @ApiModelProperty(name = "mainId", value = "主表ID:messMain的ID", required = true)

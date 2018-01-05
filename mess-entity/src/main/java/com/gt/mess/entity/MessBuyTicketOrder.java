@@ -23,8 +23,8 @@ public class MessBuyTicketOrder extends Model<MessBuyTicketOrder> {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId( value = "id", type = IdType.AUTO )
-    private Integer id;
+    @TableId( value = "id", type = IdType.UUID )
+    private String id;
 
     private Integer mainId;
 

@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * <p>饭堂卡号表</p>
+ * <p>饭堂饭卡表</p>
  *
  * @author zengwx
  * @since 2017-11-17
@@ -23,8 +23,8 @@ public class MessCard extends Model<MessCard> {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId( value = "id", type = IdType.AUTO )
-    private Integer id;
+    @TableId( value = "id", type = IdType.UUID )
+    private String id;
 
     private Integer memberId;
 
