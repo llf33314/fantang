@@ -23,7 +23,7 @@ public class SaveOrUpdateMenuVo {
     private String setType;
 
     @ApiModelProperty(name = "id", value = "主键")
-    private String id;
+    private Integer id;
 
     @NotNull(message = "主表ID不能为空")
     @ApiModelProperty(name = "mainId", value = "主表ID:messMain的ID", required = true)

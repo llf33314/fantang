@@ -23,8 +23,8 @@ public class MessCancelTicket extends Model<MessCancelTicket> {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId( value = "id", type = IdType.UUID )
-    private String id;
+    @TableId( value = "id", type = IdType.AUTO )
+    private Integer id;
 
     private Integer mainId;
 

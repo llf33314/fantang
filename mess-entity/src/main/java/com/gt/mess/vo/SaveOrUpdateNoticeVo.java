@@ -24,7 +24,7 @@ public class SaveOrUpdateNoticeVo {
     private String setType;
 
     @ApiModelProperty(name = "id", value = "主键")
-    private String id;
+    private Integer id;
 
     @ApiModelProperty(name = "mainId", value = "主表ID", hidden = true)
     private Integer mainId;

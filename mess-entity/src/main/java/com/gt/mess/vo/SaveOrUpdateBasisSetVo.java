@@ -26,7 +26,7 @@ public class SaveOrUpdateBasisSetVo {
     private String setType;
 
     @ApiModelProperty(name = "id", value = "主键")
-    private String id;
+    private Integer id;
 
     @NotNull(message = "供餐类型不能为空")
     @ApiModelProperty(name = "messType", value = "供餐类型（0早 1中 2晚 3夜宵）", required = true)
